@@ -1,0 +1,6 @@
+old
+activate
+*.swp
+*.swo
+.idea
+*.pyc
