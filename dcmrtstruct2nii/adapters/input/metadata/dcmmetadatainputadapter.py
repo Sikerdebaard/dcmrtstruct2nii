@@ -2,8 +2,8 @@ import pydicom
 from pydicom.errors import InvalidDicomError
 import SimpleITK as sitk
 
-from convert.adapters.input.abstractinputadapter import AbstractInputAdapter
-from convert.exceptions import InvalidFileFormatException
+from dcmrtstruct2nii.adapters.input.abstractinputadapter import AbstractInputAdapter
+from dcmrtstruct2nii.exceptions import InvalidFileFormatException
 
 
 class DcmMetadataInputAdapter(AbstractInputAdapter):

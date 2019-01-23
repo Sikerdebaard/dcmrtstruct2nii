@@ -1,8 +1,8 @@
 import SimpleITK as sitk
 
 
-from convert.adapters.input.abstractinputadapter import AbstractInputAdapter
-from convert.exceptions import InvalidFileFormatException
+from dcmrtstruct2nii.adapters.input.abstractinputadapter import AbstractInputAdapter
+from dcmrtstruct2nii.exceptions import InvalidFileFormatException
 
 
 class DcmInputAdapter(AbstractInputAdapter):
@@ -22,6 +22,5 @@ class DcmInputAdapter(AbstractInputAdapter):
         dicom_reader.SetFileNames(dicom_file_names)
 
         dicom_image = dicom_reader.Execute()
-        #dicom_image = sitk.GetArrayFromImage(dicom_image)
 
         return dicom_image

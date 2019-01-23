@@ -1,12 +1,12 @@
 import pydicom
 from pydicom.errors import InvalidDicomError
 
-from convert.adapters.input.abstractinputadapter import AbstractInputAdapter
-from convert.exceptions import InvalidFileFormatException
+from dcmrtstruct2nii.adapters.input.abstractinputadapter import AbstractInputAdapter
+from dcmrtstruct2nii.exceptions import InvalidFileFormatException
 
 
 class RtStructInputAdapter(AbstractInputAdapter):
-    def ingest(self, input_file):
+    def ingest(self, input_file, skip_contours=False):
         '''
             Load RT Struct DICOM from input_file and output intermediate format
             :param input_file: Path to the dicom rt-struct file
@@ -22,7 +22,7 @@ class RtStructInputAdapter(AbstractInputAdapter):
         except (IsADirectoryError, InvalidDicomError):
             raise InvalidFileFormatException('File {} is not an rt-struct dicom'.format(input_file))
 
-        # lets extract the ROI(s) and convert it to an intermediate format
+        # lets extract the ROI(s) and dcmrtstruct2nii it to an intermediate format
 
         contours = [] # this var will hold the contours
 
@@ -51,7 +51,7 @@ class RtStructInputAdapter(AbstractInputAdapter):
             if hasattr(contour_sequence, 'ROIDisplayColor') and len(contour_sequence.ROIDisplayColor) > 0:
                 contour_data['display_color'] = contour_sequence.ROIDisplayColor
 
-            if hasattr(contour_sequence, 'ContourSequence') and len(contour_sequence.ContourSequence) > 0:
+            if not skip_contours and hasattr(contour_sequence, 'ContourSequence') and len(contour_sequence.ContourSequence) > 0:
                 contour_data['sequence'] = []
                 for contour in contour_sequence.ContourSequence:
                     contour_data['sequence'].append({
@@ -61,8 +61,6 @@ class RtStructInputAdapter(AbstractInputAdapter):
                             'y': ([contour.ContourData[index + 1] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None),  # this is just a fancy way to separate x, y, z from the rtstruct point array
                             'z': ([contour.ContourData[index + 2] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None)   # this is just a fancy way to separate x, y, z from the rtstruct point array
                         }
-                        # contour.ContourData
-                        # ([[contour.ContourData[index], contour.ContourData[index + 1], contour.ContourData[index + 2]] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None) # this is just a fancy way to convert the rtstruct point array from [1, 2, 3, 4, 5, 6] to [[1, 2, 3], [4, 5, 6]]
                     })
 
             if contour_data:

@@ -2,6 +2,8 @@ import numpy as np
 from skimage import draw
 import SimpleITK as sitk
 
+import logging
+
 class DcmPatientCoords2Mask():
     def _poly2mask(self, coords_x, coords_y, shape):
         fill_coords_x, fill_coords_y = draw.polygon(coords_x, coords_y, shape)
@@ -17,6 +19,10 @@ class DcmPatientCoords2Mask():
         mask = np.zeros(shape, dtype=np.uint8)
 
         for contour in rtstruct_contours:
+            if contour['type'].upper() != 'CLOSED_PLANAR':
+                logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
+                break
+
             coordinates = contour['points']
 
             pts = np.zeros([len(coordinates['x']), 3])
@@ -33,7 +39,7 @@ class DcmPatientCoords2Mask():
 
             mask[filled_poly, slice_index] = 255
 
-        mask = np.transpose(mask, (2, 1, 0)) # rotate to correct orientation
+        mask = np.transpose(mask, (2, 0, 1,)) # rotate to correct orientation
 
         mask = sitk.GetImageFromArray(mask)
 
