@@ -1,5 +1,5 @@
-# dcmrtstruct2mask
-DICOM RT-Struct to mask
+# dcmrtstruct2nii
+DICOM RT-Struct to nii-mask
 
 # CLI Tool
 ```
