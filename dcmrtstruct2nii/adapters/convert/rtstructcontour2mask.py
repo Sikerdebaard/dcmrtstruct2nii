@@ -14,7 +14,7 @@ class DcmPatientCoords2Mask():
 
         return mask
 
-    def convert(self, rtstruct_contours, dicom_image):
+    def convert(self, rtstruct_contours, dicom_image, transpose):
         # lets convert world coordinates to voxel coordinates
 
         shape = dicom_image.GetSize()
@@ -46,7 +46,7 @@ class DcmPatientCoords2Mask():
 
             mask[filled_poly, slice_index] = 255
 
-        mask = np.transpose(mask, (2, 0, 1,)) # rotate to correct orientation
+        mask = np.transpose(mask, transpose) # rotate to correct orientation
 
         mask = sitk.GetImageFromArray(mask)
 

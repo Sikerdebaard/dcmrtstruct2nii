@@ -30,6 +30,8 @@ class Convert(PatchedCommand):
 
         if transpose:
             transpose = [int(x) for x in transpose.split(',')]
+        else:
+            transpose = [2, 0, 1]
 
         if structures:
             structures = [x.strip() for x in structures.split(',')]
