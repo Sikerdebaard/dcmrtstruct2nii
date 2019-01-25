@@ -28,7 +28,7 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, transpose=[2,0,1], fliplr=False, gzip=True):
+def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, transpose=[2,1,0], fliplr=False, gzip=True):
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -68,7 +68,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, tra
         if len(structures) == 0 or rtstruct['name'] in structures:
             logging.info('Working on mask {}'.format(rtstruct['name']))
             try:
-                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, transpose)
+                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, transpose, fliplr)
             except ContourOutOfBoundsException:
                 logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
                 continue
