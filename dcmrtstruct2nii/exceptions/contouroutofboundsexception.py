@@ -1,0 +1,2 @@
+class ContourOutOfBoundsException(Exception):
+    pass

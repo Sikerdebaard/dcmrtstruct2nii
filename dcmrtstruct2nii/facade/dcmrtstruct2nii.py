@@ -6,7 +6,7 @@ import SimpleITK as sitk
 import os.path
 
 from dcmrtstruct2nii.adapters.output.niioutputadapter import NiiOutputAdapter
-from dcmrtstruct2nii.exceptions import PathDoesNotExistException
+from dcmrtstruct2nii.exceptions import PathDoesNotExistException, ContourOutOfBoundsException
 
 import numpy as np
 
@@ -67,7 +67,11 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, tra
     for rtstruct in rtstructs:
         if len(structures) == 0 or rtstruct['name'] in structures:
             logging.info('Working on mask {}'.format(rtstruct['name']))
-            mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image)
+            try:
+                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image)
+            except ContourOutOfBoundsException:
+                logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
+                continue
 
             mask.CopyInformation(dicom_image)
 

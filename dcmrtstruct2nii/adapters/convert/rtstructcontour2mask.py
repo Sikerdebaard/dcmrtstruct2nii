@@ -2,6 +2,8 @@ import numpy as np
 from skimage import draw
 import SimpleITK as sitk
 
+from dcmrtstruct2nii.exceptions import ContourOutOfBoundsException
+
 import logging
 
 class DcmPatientCoords2Mask():
@@ -21,7 +23,7 @@ class DcmPatientCoords2Mask():
         for contour in rtstruct_contours:
             if contour['type'].upper() != 'CLOSED_PLANAR':
                 logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
-                break
+                continue
 
             coordinates = contour['points']
 
@@ -35,7 +37,12 @@ class DcmPatientCoords2Mask():
 
             slice_index = int(pts[0, 2])
 
-            filled_poly = np.logical_or(mask[:, :,  slice_index], self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]]))
+            try:
+                filled_poly = np.logical_or(mask[:, :,  slice_index], self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]]))
+            except IndexError:
+                # if this is triggered the contour is out of bounds
+                raise ContourOutOfBoundsException()
+
 
             mask[filled_poly, slice_index] = 255
 
