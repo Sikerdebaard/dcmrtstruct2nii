@@ -28,7 +28,7 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, transpose=[2,1,0], fliplr=False, gzip=True):
+def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255):
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -36,13 +36,12 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, tra
     :param dicom_file: Path to the dicom file
     :param output_path: Output path where the masks are written to
     :param structures: Optional, list of structures to convert
-    :param transpose: Optional, permute the dimensions of output mask, example: (2,0,1,)
-    :param fliplr: Optional, flip mask in the left/right direction if set to True
     :param gzip: Optional, output .nii.gz if set to True, default: True
 
     :raise InvalidFileFormatException: Raised when an invalid file format is given.
     :raise PathDoesNotExistException: Raised when the given path does not exist.
     :raise UnsupportedTypeException: Raised when conversion is not supported.
+    :raise ValueError: Raised when mask_background_value or mask_foreground_value is invalid.
     """
     output_path = os.path.join(output_path, '')  # make sure trailing slash is there
 
@@ -51,6 +50,12 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, tra
 
     if not os.path.exists(dicom_file):
         raise PathDoesNotExistException(f'DICOM path does not exists: {dicom_file}')
+
+    if mask_background_value < 0 or mask_background_value > 255:
+        raise ValueError(f'Invalid value for mask_background_value: {mask_background_value}, must be between 0 and 255')
+
+    if mask_foreground_value < 0 or mask_foreground_value > 255:
+        raise ValueError(f'Invalid value for mask_foreground_value: {mask_foreground_value}, must be between 0 and 255')
 
     if structures is None:
         structures = []
@@ -68,7 +73,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, tra
         if len(structures) == 0 or rtstruct['name'] in structures:
             logging.info('Working on mask {}'.format(rtstruct['name']))
             try:
-                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, transpose, fliplr)
+                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, mask_background_value, mask_foreground_value)
             except ContourOutOfBoundsException:
                 logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
                 continue

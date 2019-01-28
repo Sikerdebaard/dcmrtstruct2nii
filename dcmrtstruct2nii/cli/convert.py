@@ -12,10 +12,10 @@ class Convert(PatchedCommand):
         {--r|rtstruct= : Path to DICOM RT Struct file, example: /tmp/DICOM/resources/secondary/rtstruct.dcm}
         {--d|dicom= : Path to original DICOM file, example: /tmp/DICOM/resources/files}
         {--o|output= : Output path, example: /tmp/output}
-        {--t|transpose=? : Optional, permute the dimensions of output mask, example: 2,0,1}
-        {--f|fliplr=?false : Optional, flip mask in the left/right direction}
         {--g|gzip=?true : Optional, gzip output .nii}
         {--s|structures=? : Optional, list of structures that need to be converted, example: Patient, Spinal, Dose-1}
+        {--f|mask-foreground-color=?255 : Optional, the foreground color used for the mask. Must be between 0-255.}
+        {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
     """
     def handle(self):
         rtstruct_file = self.option('rtstruct')
@@ -23,15 +23,11 @@ class Convert(PatchedCommand):
 
         output_path = self.option('output')
 
-        transpose = self.option('transpose')
-        fliplr = self._castToBool(self.option('fliplr'))
         gzip = self._castToBool(self.option('gzip'))
         structures = self.option('structures')
 
-        if transpose:
-            transpose = [int(x) for x in transpose.split(',')]
-        else:
-            transpose = [2, 0, 1]
+        mask_foreground = int(self.option('mask-foreground-color'))
+        mask_background = int(self.option('mask-background-color'))
 
         if structures:
             structures = [x.strip() for x in structures.split(',')]
@@ -41,6 +37,6 @@ class Convert(PatchedCommand):
             return -1
 
         try:
-            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, transpose, fliplr, gzip)
-        except (InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException,) as e:
+            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground)
+        except (InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException, ValueError,) as e:
             logging.error(str(e))

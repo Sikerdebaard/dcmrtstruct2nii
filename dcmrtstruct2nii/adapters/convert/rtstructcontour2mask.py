@@ -14,7 +14,7 @@ class DcmPatientCoords2Mask():
 
         return mask
 
-    def convert(self, rtstruct_contours, dicom_image, transpose, fliplr):
+    def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
         # lets convert world coordinates to voxel coordinates
 
         shape = dicom_image.GetSize()
@@ -48,9 +48,9 @@ class DcmPatientCoords2Mask():
                 for x in range(0, shape[0]):
                     for y in range(0, shape[1]):
                         if filled_poly[x, y]:
-                            mask.SetPixel(x, y, z, 255)
+                            mask.SetPixel(x, y, z, mask_foreground)
                         else:
-                            mask.SetPixel(x, y, z, 0)
+                            mask.SetPixel(x, y, z, mask_background)
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()
