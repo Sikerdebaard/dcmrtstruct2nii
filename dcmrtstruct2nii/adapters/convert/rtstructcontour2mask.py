@@ -54,6 +54,12 @@ class DcmPatientCoords2Mask():
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()
+            except RuntimeError as e:
+                # this error is sometimes thrown by SimpleITK if the index goes out of bounds
+                if 'index out of bounds' in str(e):
+                    raise ContourOutOfBoundsException()
+                raise e  # something serious is going on
+
 
 
 
