@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='dcmrtstruct2nii',
-    version='1.0.7',
+    version='1.0.8',
     description='Convert DICOM RT-Struct to nii',
     long_description=long_description,
     long_description_content_type="text/markdown",
