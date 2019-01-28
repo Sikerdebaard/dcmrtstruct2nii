@@ -18,7 +18,11 @@ class DcmPatientCoords2Mask():
         # lets convert world coordinates to voxel coordinates
 
         shape = dicom_image.GetSize()
-        mask = np.zeros(shape, dtype=np.uint8)
+        #mask = np.zeros(shape, dtype=np.uint8)
+        #mask = sitk.GetImageFromArray(mask)
+
+        mask = sitk.Image(shape, sitk.sitkUInt8)
+        mask.CopyInformation(dicom_image)
 
         for contour in rtstruct_contours:
             if contour['type'].upper() != 'CLOSED_PLANAR':
@@ -35,22 +39,32 @@ class DcmPatientCoords2Mask():
                 pts[index, 1] = world_coords[1]
                 pts[index, 2] = world_coords[2]
 
-            slice_index = int(pts[0, 2])
+            #slice_index = int(pts[0, 2])
+            z = int(pts[0, 2])
 
             try:
-                filled_poly = np.logical_or(mask[:, :,  slice_index], self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]]))
+                #filled_poly = np.logical_or(mask[:, :,  slice_index], self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]]))
+                filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
+                for x in range(0, shape[0]):
+                    for y in range(0, shape[1]):
+                        if filled_poly[x, y]:
+                            mask.SetPixel(x, y, z, 255)
+                        else:
+                            mask.SetPixel(x, y, z, 0)
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()
 
 
-            mask[filled_poly, slice_index] = 255
 
-        mask = np.transpose(mask, transpose) # rotate to correct orientation
 
-        if fliplr:
-            mask = np.fliplr(mask)
+            #mask[filled_poly, slice_index] = 255
 
-        mask = sitk.GetImageFromArray(mask)
+        #mask = np.transpose(mask, transpose) # rotate to correct orientation
+
+        #if fliplr:
+        #    mask = np.fliplr(mask)
+
+        #mask = sitk.GetImageFromArray(mask)
 
         return mask
