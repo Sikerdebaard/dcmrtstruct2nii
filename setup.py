@@ -11,6 +11,7 @@ setup(
     long_description_content_type="text/markdown",
     author='Thomas Phil',
     author_email='thomas@tphil.nl',
+    url='https://github.com/Sikerdebaard/dcmrtstruct2nii',
     packages=find_packages(),  #same as name
     install_requires=[
         'numpy==1.15.4',
