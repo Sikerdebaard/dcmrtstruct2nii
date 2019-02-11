@@ -10,7 +10,7 @@ class DcmPatientCoords2Mask():
     def _poly2mask(self, coords_x, coords_y, shape):
         fill_coords_x, fill_coords_y = draw.polygon(coords_x, coords_y, shape)
         mask = np.zeros(shape, dtype=np.bool)
-        mask[fill_coords_x, fill_coords_y] = True
+        mask[fill_coords_y, fill_coords_x] = True
 
         return mask
 
@@ -24,10 +24,13 @@ class DcmPatientCoords2Mask():
         mask = sitk.Image(shape, sitk.sitkUInt8)
         mask.CopyInformation(dicom_image)
 
-        for x in range(0, shape[0]):
-            for y in range(0, shape[1]):
-                for z in range(0, shape[2]):
-                    mask.SetPixel(x, y, z, mask_background)
+        np_mask = sitk.GetArrayFromImage(mask)
+        #for x in range(0, shape[0]):
+        #    for y in range(0, shape[1]):
+        #        for z in range(0, shape[2]):
+        #            mask.SetPixel(x, y, z, mask_background)
+        np_mask.fill(mask_background)
+        #mask = sitk.GetImageFromArray(np_mask)
 
         for contour in rtstruct_contours:
             if contour['type'].upper() != 'CLOSED_PLANAR':
@@ -51,10 +54,14 @@ class DcmPatientCoords2Mask():
                 #filled_poly = np.logical_or(mask[:, :,  slice_index], self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]]))
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
 
-                for x in range(0, shape[0]):
-                    for y in range(0, shape[1]):
-                        if filled_poly[x, y]:
-                            mask.SetPixel(x, y, z, mask_foreground)
+                #for x in range(0, shape[0]):
+                #    for y in range(0, shape[1]):
+                #        if filled_poly[x, y]:
+                #            mask.SetPixel(x, y, z, mask_foreground)
+
+                #np_mask = sitk.GetArrayFromImage(mask)
+                np_mask[z, filled_poly] = mask_foreground
+                mask = sitk.GetImageFromArray(np_mask)
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()

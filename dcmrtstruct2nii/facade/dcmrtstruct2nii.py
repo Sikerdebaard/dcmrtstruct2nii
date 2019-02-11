@@ -28,7 +28,7 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255):
+def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True):
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -82,7 +82,8 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
 
             nii_output_adapter.write(mask, f'{output_path}mask_{rtstruct["name"]}'.format(), gzip)
 
-    logging.info('Converting original DICOM to nii')
-    nii_output_adapter.write(dicom_image, f'{output_path}image', gzip)
+    if convert_original_dicom:
+        logging.info('Converting original DICOM to nii')
+        nii_output_adapter.write(dicom_image, f'{output_path}image', gzip)
 
     logging.info('Success!')
