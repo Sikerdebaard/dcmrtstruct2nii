@@ -24,6 +24,11 @@ class DcmPatientCoords2Mask():
         mask = sitk.Image(shape, sitk.sitkUInt8)
         mask.CopyInformation(dicom_image)
 
+        for x in range(0, shape[0]):
+            for y in range(0, shape[1]):
+                for z in range(0, shape[2]):
+                    mask.SetPixel(x, y, z, mask_background)
+
         for contour in rtstruct_contours:
             if contour['type'].upper() != 'CLOSED_PLANAR':
                 logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
@@ -45,12 +50,11 @@ class DcmPatientCoords2Mask():
             try:
                 #filled_poly = np.logical_or(mask[:, :,  slice_index], self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]]))
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
+
                 for x in range(0, shape[0]):
                     for y in range(0, shape[1]):
                         if filled_poly[x, y]:
                             mask.SetPixel(x, y, z, mask_foreground)
-                        else:
-                            mask.SetPixel(x, y, z, mask_background)
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()
