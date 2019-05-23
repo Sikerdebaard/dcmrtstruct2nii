@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='dcmrtstruct2nii',
-    version='1.0.13',
+    version='1.0.14',
     description='Convert DICOM RT-Struct to nii',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -26,7 +26,12 @@ setup(
         'SimpleITK==1.2.0',
         'cleo==0.7.2'
     ], #external packages as dependencies
-    scripts=[
-        'bin/dcmrtstruct2nii'
-    ]
+    #scripts=[
+    #    'bin/dcmrtstruct2nii'
+    #]
+    entry_points={
+        'console_scripts': [
+            'dcmrtstruct2nii=dcmrtstruct2nii.cli.dcmrtstruct2nii:run',
+        ],
+    },
 )
