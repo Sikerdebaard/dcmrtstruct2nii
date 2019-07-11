@@ -1,14 +1,12 @@
 from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask
+from dcmrtstruct2nii.adapters.convert.filenameconverter import FilenameConverter
 from dcmrtstruct2nii.adapters.input.contours.rtstructinputadapter import RtStructInputAdapter
 from dcmrtstruct2nii.adapters.input.image.dcminputadapter import DcmInputAdapter
 
-import SimpleITK as sitk
 import os.path
 
 from dcmrtstruct2nii.adapters.output.niioutputadapter import NiiOutputAdapter
 from dcmrtstruct2nii.exceptions import PathDoesNotExistException, ContourOutOfBoundsException
-
-import numpy as np
 
 import logging
 
@@ -62,6 +60,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
 
     os.makedirs(output_path, exist_ok=True)
 
+    filename_converter = FilenameConverter()
     rtreader = RtStructInputAdapter()
 
     rtstructs = rtreader.ingest(rtstruct_file)
@@ -80,7 +79,8 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
 
             mask.CopyInformation(dicom_image)
 
-            nii_output_adapter.write(mask, f'{output_path}mask_{rtstruct["name"]}'.format(), gzip)
+            mask_filename = filename_converter.convert(f'mask_{rtstruct["name"]}')
+            nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)
 
     if convert_original_dicom:
         logging.info('Converting original DICOM to nii')
