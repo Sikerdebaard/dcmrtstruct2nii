@@ -24,8 +24,11 @@ class DcmPatientCoords2Mask():
         np_mask.fill(mask_background)
 
         for contour in rtstruct_contours:
-            if contour['type'].upper() != 'CLOSED_PLANAR':
-                logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
+            if contour['type'].upper() not in ['CLOSED_PLANAR', 'INTERPOLATED_PLANAR']:
+                if 'name' in contour:
+                    logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
+                else:
+                    logging.info(f'Skipping unnamed contour, unsupported type: {contour["type"]}')
                 continue
 
             coordinates = contour['points']
