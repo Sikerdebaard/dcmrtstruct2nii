@@ -23,5 +23,5 @@ class ListStructs(Command):
         for struct in structs:
             print(struct)
 
-        print(f'Found {len(struct)} structures')
+        print(f'Found {len(structs)} structures')
 
