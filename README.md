@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/166835376.svg)](https://zenodo.org/badge/latestdoi/166835376)
+
 # dcmrtstruct2nii
 DICOM RT-Struct to nii-mask. This is a naïve approach to rasterizing rt-struct to masks in nii format. If there's holes in your RT-Struct then this approach will most likely not work. The RT-Struct needs to be within the bounds of the slices of the original DICOM. Rasterization is done on a slice-by-slice basis, interpolation between slices is currently unsupported.
 
@@ -39,3 +41,14 @@ from dcmrtstruct2nii import dcmrtstruct2nii, list_rt_structs
 print(list_rt_structs('/path/to/dicom/rtstruct/file.dcm'))
 
 dcmrtstruct2nii('/path/to/dicom/rtstruct/file.dcm', '/path/to/original/extracted/dicom/files', '/output/path')
+
+
+# License and academic use
+
+The program is licensed [Apache license 2.0](https://github.com/Sikerdebaard/dcmrtstruct2nii/blob/master/LICENSE).
+
+For academic use, use a presistent copy from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4037865.svg)](https://doi.org/10.5281/zenodo.4037865). 
+
+Please cite:
+
+```Phil, T. (2020). Sikerdebaard/dcmrtstruct2nii: v1.0.19 (v1.0.19) [Computer software]. Zenodo. https://doi.org/10.5281/ZENODO.4037865```
