@@ -70,6 +70,10 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
     nii_output_adapter = NiiOutputAdapter()
     for rtstruct in rtstructs:
         if len(structures) == 0 or rtstruct['name'] in structures:
+            if not 'sequence' in rtstruct:
+                logging.info('Skipping mask {} no shape/polygon found'.format(rtstruct['name']))
+                continue
+
             logging.info('Working on mask {}'.format(rtstruct['name']))
             try:
                 mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, mask_background_value, mask_foreground_value)
