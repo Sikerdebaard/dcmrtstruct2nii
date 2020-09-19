@@ -41,7 +41,7 @@ from dcmrtstruct2nii import dcmrtstruct2nii, list_rt_structs
 print(list_rt_structs('/path/to/dicom/rtstruct/file.dcm'))
 
 dcmrtstruct2nii('/path/to/dicom/rtstruct/file.dcm', '/path/to/original/extracted/dicom/files', '/output/path')
-
+```
 
 # License and academic use
 
