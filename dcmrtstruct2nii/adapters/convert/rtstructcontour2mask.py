@@ -37,7 +37,7 @@ class DcmPatientCoords2Mask():
 
             for index in range(0, len(coordinates['x'])):
                 # lets convert world coordinates to voxel coordinates
-                world_coords = dicom_image.TransformPhysicalPointToIndex((coordinates['x'][index], coordinates['y'][index], coordinates['z'][index]))
+                world_coords = dicom_image.TransformPhysicalPointToContinuousIndex((coordinates['x'][index], coordinates['y'][index], coordinates['z'][index]))
                 pts[index, 0] = world_coords[0]
                 pts[index, 1] = world_coords[1]
                 pts[index, 2] = world_coords[2]
