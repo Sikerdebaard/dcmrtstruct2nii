@@ -39,7 +39,7 @@ class DcmPatientCoords2Mask():
                 pts[index, 1] = world_coords[1]
                 pts[index, 2] = world_coords[2]
 
-            z = int(pts[0, 2])
+            z = int(round(pts[0, 2]))
 
             try:
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
