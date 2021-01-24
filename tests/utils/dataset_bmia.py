@@ -16,104 +16,56 @@
 # limitations under the License.
 
 import xnat
-import os
+from pathlib import Path
 
 
-def download_subject(project, subject, datafolder, session, verbose=False):
-    # Download all data and keep track of resources
-    # download_counter = 0
-    # resource_labels = list()
+_xnat_sessions = {}
+
+
+def _cached_xnat(xnat_url, project_name):
+    if (xnat_url, project_name, ) in _xnat_sessions:
+        return _xnat_sessions[(xnat_url, project_name, )]
+    session = xnat.connect(xnat_url)
+    project = session.projects[project_name]
+    _xnat_sessions[(xnat_url, project_name, )] = project
+
+    return project
+
+
+def _subjects(project_name, xnat_url):
+    project = _cached_xnat(xnat_url, project_name)
+
+    return project.subjects.values()
+
+
+def list_subjects_stwstrategyhn1():
+    return list_subjects('stwstrategyhn1')
+
+
+def list_subjects(project_name):
+    xnat_url = 'https://xnat.bmia.nl'
+    return _subjects(project_name, xnat_url)
+
+
+def download_subject(subject, datafolder):
     for e in subject.experiments:
-        # resmap = {}
         experiment = subject.experiments[e]
 
-        # FIXME: Need a way to smartly check whether we have a matching RT struct and image
-        # Current solution: We only download the CT sessions, no PET / MRI / Other scans
-        # Specific for STW Strategy BMIA XNAT projects
-
         if experiment.session_type is None:  # some files in project don't have _CT postfix
-            print(f"\tSkipping patient {subject.label}, experiment {experiment.label}: type is not CT but {experiment.session_type}.")
+            print(f"Skipping patient {subject.label}, experiment {experiment.label}: type is not CT but {experiment.session_type}.")
             continue
 
         if '_CT' not in experiment.session_type:
-            print(f"\tSkipping patient {subject.label}, experiment {experiment.label}: type is not CT but {experiment.session_type}.")
+            print(f"Skipping patient {subject.label}, experiment {experiment.label}: type is not CT but {experiment.session_type}.")
             continue
 
         for s in experiment.scans:
             scan = experiment.scans[s]
-            print(("\tDownloading patient {}, experiment {}, scan {}.").format(subject.label, experiment.label, scan.id))
-            outdir = datafolder + '/{}'.format(subject.label)
+            print(("Downloading patient {}, experiment {}, scan {}.").format(subject.label, experiment.label, scan.id))
+            outdir = Path(datafolder)
 
-            if not os.path.exists(outdir):
-                os.makedirs(outdir)
+            outdir.mkdir(parents=True, exist_ok=True)
 
-            scan.download_dir(outdir)
-
-            # for res in scan.resources:
-            #     resource_label = scan.resources[res].label
-            #     # Create output directory
-            #     outdir = datafolder + '/{}'.format(subject.label)
-            #     if not os.path.exists(outdir):
-            #         os.makedirs(outdir)
-            #
-            #     resmap[resource_label] = scan
-            #     print(f'resource is {resource_label}')
-            #     scan.resources[res].download_dir(outdir)
-            #     resource_labels.append(resource_label)
-            #     download_counter += 1
+            scan.download_dir(str(outdir), verbose=False)
 
     return True
-
-
-def download_project(project_name, xnat_url, datafolder, nsubjects=10,
-                     verbose=True):
-
-    # Connect to XNAT and retreive project
-    session = xnat.connect(xnat_url)
-    project = session.projects[project_name]
-
-    # Create the data folder if it does not exist yet
-    datafolder = os.path.join(datafolder, project_name)
-    if not os.path.exists(datafolder):
-        os.makedirs(datafolder)
-
-    subjects_len = len(project.subjects)
-    if nsubjects == 'all':
-        nsubjects = subjects_len
-    else:
-        nsubjects = min(nsubjects, subjects_len)
-
-    subjects_counter = 1
-    downloaded_subjects_counter = 0
-    for s in range(0, subjects_len):
-        s = project.subjects[s]
-        print(f'Working on subject {subjects_counter}/{subjects_len}')
-        subjects_counter += 1
-
-        success = download_subject(project_name, s, datafolder, session, verbose)
-        if success:
-            downloaded_subjects_counter += 1
-
-        # Stop downloading if we have reached the required number of subjects
-        if downloaded_subjects_counter == nsubjects:
-            break
-
-    # Disconnect the session
-    session.disconnect()
-    if downloaded_subjects_counter < nsubjects:
-        raise ValueError(f'Number of subjects downloaded {downloaded_subjects_counter} is smaller than the number required {nsubjects}.')
-
-    print('Done downloading!')
-
-
-def download_stwstrategyhn1(datafolder=None, nsubjects=10):
-    if datafolder is None:
-        # Download data to path in which this script is located + Data
-        cwd = os.getcwd()
-        datafolder = os.path.join(cwd, 'Data')
-        if not os.path.exists(datafolder):
-            os.makedirs(datafolder)
-
-    xnat_url = 'https://xnat.bmia.nl'
-    project_name = 'stwstrategyhn1'
-    download_project(project_name, xnat_url, datafolder, nsubjects=nsubjects, verbose=True)
