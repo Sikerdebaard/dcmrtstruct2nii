@@ -24,4 +24,3 @@ class ListStructs(Command):
             print(struct)
 
         print(f'Found {len(structs)} structures')
-

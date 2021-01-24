@@ -26,7 +26,7 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True):
+def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True):  # noqa: C901 E501
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -70,7 +70,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
     nii_output_adapter = NiiOutputAdapter()
     for rtstruct in rtstructs:
         if len(structures) == 0 or rtstruct['name'] in structures:
-            if not 'sequence' in rtstruct:
+            if 'sequence' not in rtstruct:
                 logging.info('Skipping mask {} no shape/polygon found'.format(rtstruct['name']))
                 continue
 

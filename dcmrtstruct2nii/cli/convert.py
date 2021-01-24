@@ -4,6 +4,7 @@ from dcmrtstruct2nii.facade.dcmrtstruct2nii import dcmrtstruct2nii
 
 import logging
 
+
 class Convert(PatchedCommand):
     """
     Convert RT Struct to nii. If no structures are specified all will be converted.

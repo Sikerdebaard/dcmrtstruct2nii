@@ -2,6 +2,7 @@ from dcmrtstruct2nii.adapters.output.abstractoutputadapter import AbstractOutput
 
 import SimpleITK as sitk
 
+
 class NiiOutputAdapter(AbstractOutputAdapter):
     def write(self, image, output_path, gzip):
         if gzip:
