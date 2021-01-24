@@ -1,5 +1,5 @@
 [![DOI](https://zenodo.org/badge/166835376.svg)](https://zenodo.org/badge/latestdoi/166835376)
-![unit tests](https://github.com/Sikerdebaard/dcmrtstruct2nii/workflows/.github/workflows/python-package.yml/badge.svg)
+![unit tests](https://github.com/Sikerdebaard/dcmrtstruct2nii/workflows/Unit%20Tests/badge.svg)
   
 
 # dcmrtstruct2nii
