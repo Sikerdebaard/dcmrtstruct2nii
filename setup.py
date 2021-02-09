@@ -17,7 +17,7 @@ setup(
     author_email='thomas@tphil.nl',
     url='https://github.com/Sikerdebaard/dcmrtstruct2nii',
     python_requires=">=3.6",
-    packages=find_packages(),  #same as name
+    packages=find_packages(),  # same as name
     install_requires=[
         'numpy>=1.15.4',
         'pydicom>=1.2.1',
@@ -25,10 +25,7 @@ setup(
         'scipy>=1.2.0',
         'SimpleITK>=1.2.0',
         'cleo>=0.7.2'
-    ], #external packages as dependencies
-    #scripts=[
-    #    'bin/dcmrtstruct2nii'
-    #]
+    ],
     entry_points={
         'console_scripts': [
             'dcmrtstruct2nii=dcmrtstruct2nii.cli.dcmrtstruct2nii:run',

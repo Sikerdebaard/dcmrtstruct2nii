@@ -1,4 +1,6 @@
 [![DOI](https://zenodo.org/badge/166835376.svg)](https://zenodo.org/badge/latestdoi/166835376)
+![unit tests](https://github.com/Sikerdebaard/dcmrtstruct2nii/workflows/Unit%20Tests/badge.svg)
+  
 
 # dcmrtstruct2nii
 DICOM RT-Struct to nii-mask. This is a naïve approach to rasterizing rt-struct to masks in nii format. If there's holes in your RT-Struct then this approach will most likely not work. The RT-Struct needs to be within the bounds of the slices of the original DICOM. Rasterization is done on a slice-by-slice basis, interpolation between slices is currently unsupported.

@@ -6,9 +6,11 @@ from dcmrtstruct2nii.exceptions import ContourOutOfBoundsException
 
 import logging
 
+
 class DcmPatientCoords2Mask():
     def _poly2mask(self, coords_x, coords_y, shape):
         mask = draw.polygon2mask(tuple(reversed(shape)), np.column_stack((coords_y, coords_x)))
+  
         return mask
 
     def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
@@ -43,7 +45,7 @@ class DcmPatientCoords2Mask():
 
             try:
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
-                np_mask[z, filled_poly] = mask_foreground # sitk is xyz, numpy is zyx
+                np_mask[z, filled_poly] = mask_foreground  # sitk is xyz, numpy is zyx
                 mask = sitk.GetImageFromArray(np_mask)
             except IndexError:
                 # if this is triggered the contour is out of bounds

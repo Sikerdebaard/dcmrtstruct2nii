@@ -6,7 +6,7 @@ from dcmrtstruct2nii.exceptions import InvalidFileFormatException
 
 
 class RtStructInputAdapter(AbstractInputAdapter):
-    def ingest(self, input_file, skip_contours=False):
+    def ingest(self, input_file, skip_contours=False):  # noqa: C901
         '''
             Load RT Struct DICOM from input_file and output intermediate format
             :param input_file: Path to the dicom rt-struct file
@@ -24,7 +24,7 @@ class RtStructInputAdapter(AbstractInputAdapter):
 
         # lets extract the ROI(s) and dcmrtstruct2nii it to an intermediate format
 
-        contours = [] # this var will hold the contours
+        contours = []  # this var will hold the contours
 
         # first create a map so that we can easily trace referenced_roi_number back to its metadata
         metadata_mappings = {}
@@ -34,7 +34,7 @@ class RtStructInputAdapter(AbstractInputAdapter):
         for contour_sequence in rt_struct_image.ROIContourSequence:
             contour_data = {}
 
-            metadata = metadata_mappings[contour_sequence.ReferencedROINumber] # retrieve metadata
+            metadata = metadata_mappings[contour_sequence.ReferencedROINumber]  # retrieve metadata
 
             # I'm not sure if these attributes are always present in the metadata and contour_sequence
             # so I decided to write this in a defensive way.
@@ -57,9 +57,10 @@ class RtStructInputAdapter(AbstractInputAdapter):
                     contour_data['sequence'].append({
                         'type': (contour.ContourGeometricType if hasattr(contour, 'ContourGeometricType') else 'unknown'),
                         'points': {
-                            'x': ([contour.ContourData[index] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None),  # this is just a fancy way to separate x, y, z from the rtstruct point array
-                            'y': ([contour.ContourData[index + 1] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None),  # this is just a fancy way to separate x, y, z from the rtstruct point array
-                            'z': ([contour.ContourData[index + 2] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None)   # this is just a fancy way to separate x, y, z from the rtstruct point array
+                            # this is just a fancy way to separate x, y, z from the rtstruct point array
+                            'x': ([contour.ContourData[index] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None),  # noqa: E501
+                            'y': ([contour.ContourData[index + 1] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None),  # noqa: E501
+                            'z': ([contour.ContourData[index + 2] for index in range(0, len(contour.ContourData), 3)] if hasattr(contour, 'ContourData') else None)  # noqa: E501
                         }
                     })
 
