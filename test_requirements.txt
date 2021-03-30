@@ -43,7 +43,7 @@ pycodestyle==2.6.0
 pycparser==2.20
 pydicom==2.0.0
 pyflakes==2.2.0
-Pygments==2.7.1
+Pygments==2.7.4
 pylev==1.3.0
 pyparsing==2.4.7
 pytest==6.2.1
