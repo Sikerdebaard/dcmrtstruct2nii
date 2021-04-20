@@ -37,8 +37,8 @@ def diffnii(left, right):
     result['voxel_val_mean_diff'] = {'mean_diff': (img1_data - img2_data).mean(), 'equal': (img1_data - img2_data).mean() == 0}
 
     if not result['voxel_val_mean_diff']['equal']:
-        m = result['voxel_val_mean_diff']['mean_diff']
-        ma = (img1_data - img2_data).max()
+        m = abs(result['voxel_val_mean_diff']['mean_diff'])
+        ma = abs((img1_data - img2_data).max())
         result['similarity'] = (ma - m) / ma
         return result
 

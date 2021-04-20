@@ -9,10 +9,8 @@ import logging
 
 class DcmPatientCoords2Mask():
     def _poly2mask(self, coords_x, coords_y, shape):
-        fill_coords_x, fill_coords_y = draw.polygon(coords_x, coords_y, shape)
-        mask = np.zeros(shape, dtype=np.bool)
-        mask[fill_coords_y, fill_coords_x] = True  # sitk is xyz, numpy is zyx
-
+        mask = draw.polygon2mask(tuple(reversed(shape)), np.column_stack((coords_y, coords_x)))
+  
         return mask
 
     def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
@@ -38,12 +36,12 @@ class DcmPatientCoords2Mask():
 
             for index in range(0, len(coordinates['x'])):
                 # lets convert world coordinates to voxel coordinates
-                world_coords = dicom_image.TransformPhysicalPointToIndex((coordinates['x'][index], coordinates['y'][index], coordinates['z'][index]))
+                world_coords = dicom_image.TransformPhysicalPointToContinuousIndex((coordinates['x'][index], coordinates['y'][index], coordinates['z'][index]))
                 pts[index, 0] = world_coords[0]
                 pts[index, 1] = world_coords[1]
                 pts[index, 2] = world_coords[2]
 
-            z = int(pts[0, 2])
+            z = int(round(pts[0, 2]))
 
             try:
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])

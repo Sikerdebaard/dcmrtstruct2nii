@@ -50,7 +50,7 @@ def test_bmia_stwstrategyhn1(tmpdir):
 
             diff = diffnii(nii, nii_stwstrategyhn1)
 
-            if diff['similarity'] != 1:
+            if not (diff['similarity'] > .95 and diff['similarity'] < 1.05):
                 assert False, f'niftis not equal {diff["similarity"]}, {nii}:{nii_stwstrategyhn1} data: {diff}'
 
         print(f"Compared {niicounter} NiFTI's for subject {subject.label}")
