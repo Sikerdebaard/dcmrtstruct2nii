@@ -73,7 +73,7 @@ tifffile==2020.9.3
 toml==0.10.2
 tqdm==4.49.0
 twine==3.2.0
-urllib3==1.25.10
+urllib3==1.26.5
 webencodings==0.5.1
 xnat==0.3.25
 zipp==3.1.0
