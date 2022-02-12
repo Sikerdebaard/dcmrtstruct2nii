@@ -15,6 +15,7 @@ class Convert(PatchedCommand):
         {--o|output= : Output path, example: /tmp/output}
         {--g|gzip=?true : Optional, gzip output .nii}
         {--s|structures=? : Optional, list of structures that need to be converted, example: Patient, Spinal, Dose-1}
+        {--i|series-id=? : Optional, the Series ID of the image DICOMs. Use to exclude other series in the same directory}
         {--f|mask-foreground-color=?255 : Optional, the foreground color used for the mask. Must be between 0-255.}
         {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
         {--c|convert-original-dicom=?true : Optional, convert the original dicom to nii}
@@ -33,6 +34,8 @@ class Convert(PatchedCommand):
 
         convert_original_dicom = self._castToBool(self.option('convert-original-dicom'))
 
+        series_id = self.option('series-id')
+
         if structures:
             structures = [x.strip() for x in structures.split(',')]
 
@@ -41,6 +44,6 @@ class Convert(PatchedCommand):
             return -1
 
         try:
-            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom)
+            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom, series_id)
         except (InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException, ValueError,) as e:
             logging.error(str(e))

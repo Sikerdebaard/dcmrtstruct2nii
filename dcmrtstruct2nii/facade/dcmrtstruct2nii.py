@@ -26,7 +26,7 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True):  # noqa: C901 E501
+def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True, series_id=None):  # noqa: C901 E501
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -35,6 +35,8 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
     :param output_path: Output path where the masks are written to
     :param structures: Optional, list of structures to convert
     :param gzip: Optional, output .nii.gz if set to True, default: True
+    :param series_id: Optional, the Series Instance UID. Use  to specify the ID corresponding to the image if there are
+    dicoms from more than one series in `dicom_file` folder
 
     :raise InvalidFileFormatException: Raised when an invalid file format is given.
     :raise PathDoesNotExistException: Raised when the given path does not exist.
@@ -64,7 +66,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
     rtreader = RtStructInputAdapter()
 
     rtstructs = rtreader.ingest(rtstruct_file)
-    dicom_image = DcmInputAdapter().ingest(dicom_file)
+    dicom_image = DcmInputAdapter().ingest(dicom_file, series_id=series_id)
 
     dcm_patient_coords_to_mask = DcmPatientCoords2Mask()
     nii_output_adapter = NiiOutputAdapter()
