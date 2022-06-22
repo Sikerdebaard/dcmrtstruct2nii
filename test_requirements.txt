@@ -31,7 +31,7 @@ matplotlib==3.3.2
 mccabe==0.6.1
 networkx==2.5
 nibabel==3.2.1
-numpy==1.19.2
+numpy==1.22.0
 packaging==20.4
 pastel==0.2.1
 Pillow==8.1.1
