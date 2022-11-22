@@ -34,7 +34,7 @@ nibabel==3.2.1
 numpy==1.19.2
 packaging==20.4
 pastel==0.2.1
-Pillow==8.1.1
+Pillow==9.3.0
 pkginfo==1.5.0.1
 pluggy==0.13.1
 progressbar2==3.53.1
