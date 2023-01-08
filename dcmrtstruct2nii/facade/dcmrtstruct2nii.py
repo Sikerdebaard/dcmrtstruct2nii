@@ -1,14 +1,12 @@
-from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask
-from dcmrtstruct2nii.adapters.convert.filenameconverter import FilenameConverter
-from dcmrtstruct2nii.adapters.input.contours.rtstructinputadapter import RtStructInputAdapter
-from dcmrtstruct2nii.adapters.input.image.dcminputadapter import DcmInputAdapter
-
+import logging
 import os.path
 
+from dcmrtstruct2nii.adapters.convert.filenameconverter import FilenameConverter
+from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask
+from dcmrtstruct2nii.adapters.input.contours.rtstructinputadapter import RtStructInputAdapter
+from dcmrtstruct2nii.adapters.input.image.dcminputadapter import DcmInputAdapter
 from dcmrtstruct2nii.adapters.output.niioutputadapter import NiiOutputAdapter
 from dcmrtstruct2nii.exceptions import PathDoesNotExistException, ContourOutOfBoundsException
-
-import logging
 
 
 def list_rt_structs(rtstruct_file):
@@ -26,7 +24,16 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True, series_id=None):  # noqa: C901 E501
+def dcmrtstruct2nii(rtstruct_file,
+                    dicom_file,
+                    output_path,
+                    structures=None,
+                    gzip=True,
+                    mask_background_value=0,
+                    mask_foreground_value=255,
+                    convert_original_dicom=True,
+                    series_id=None,  # noqa: C901 E501
+                    xy_scaling_factor=1):
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -78,12 +85,14 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
 
             logging.info('Working on mask {}'.format(rtstruct['name']))
             try:
-                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, mask_background_value, mask_foreground_value)
+                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'],
+                                                          dicom_image,
+                                                          mask_background_value,
+                                                          mask_foreground_value,
+                                                          xy_scaling_factor=xy_scaling_factor)
             except ContourOutOfBoundsException:
                 logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
                 continue
-
-            mask.CopyInformation(dicom_image)
 
             mask_filename = filename_converter.convert(f'mask_{rtstruct["name"]}')
             nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)
