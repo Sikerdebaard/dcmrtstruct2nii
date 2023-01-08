@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
 import sys
 
-if sys.version_info < (3, 6):
-    sys.exit('Sorry, Python < 3.6 is not supported')
+minpyver = (3, 8)
+if sys.version_info < minpyver:
+    sys.exit(f'Sorry, Python < {".".join(minpyver)} is not supported')
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
