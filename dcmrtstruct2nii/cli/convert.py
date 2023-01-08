@@ -19,7 +19,7 @@ class Convert(PatchedCommand):
         {--f|mask-foreground-color=?255 : Optional, the foreground color used for the mask. Must be between 0-255.}
         {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
         {--c|convert-original-dicom=?true : Optional, convert the original dicom to nii}
-        {--a|xy-scaling-factor=?1 : Optional, Increase pixel density with this factor in xy. Must be 1 or more}
+        {--a|xy-scaling-factor=?1 : Optional, Increase pixel density with this factor in xy. Must be 1-5.}
     """
     def handle(self):
         rtstruct_file = self.option('rtstruct')
@@ -46,8 +46,8 @@ class Convert(PatchedCommand):
             logging.error('dcmrtstruct2nii convert needs the following parameters at minimum: --rtstruct <..> --dicom <..> --output <..>')
             return -1
 
-        if not xy_scaling_factor >= 1:
-            logging.error('xy_scaling_factor must be a positive integer')
+        if not 1 <= xy_scaling_factor <= 5:
+            logging.error('xy_scaling_factor must be a positive integer between 1-5')
             return -1
 
         try:
