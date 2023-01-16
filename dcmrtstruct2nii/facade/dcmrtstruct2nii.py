@@ -1,13 +1,15 @@
 import logging
 import os.path
 
+import numpy as np
+
 from dcmrtstruct2nii.adapters.convert.filenameconverter import FilenameConverter
-from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask
+from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask, scale_information_tuple
 from dcmrtstruct2nii.adapters.input.contours.rtstructinputadapter import RtStructInputAdapter
 from dcmrtstruct2nii.adapters.input.image.dcminputadapter import DcmInputAdapter
 from dcmrtstruct2nii.adapters.output.niioutputadapter import NiiOutputAdapter
 from dcmrtstruct2nii.exceptions import PathDoesNotExistException, ContourOutOfBoundsException
-
+import SimpleITK as sitk
 
 def list_rt_structs(rtstruct_file):
     """
@@ -99,6 +101,18 @@ def dcmrtstruct2nii(rtstruct_file,
 
     if convert_original_dicom:
         logging.info('Converting original DICOM to nii')
+        if xy_scaling_factor != 1:
+            dicom_image_arr = sitk.GetArrayFromImage(dicom_image)
+            dicom_image_arr = np.kron(dicom_image_arr, np.ones((1, xy_scaling_factor, xy_scaling_factor)))
+            dicom_image1 = sitk.GetImageFromArray(dicom_image_arr)
+            spacing = scale_information_tuple(information_tuple=dicom_image.GetSpacing(), xy_scaling_factor=xy_scaling_factor, up=False, out_type=float)
+            dicom_image1.SetSpacing(spacing)
+
+            # Original direction and origin
+            dicom_image1.SetDirection(dicom_image.GetDirection())
+            dicom_image1.SetOrigin(dicom_image.GetOrigin())
+            dicom_image = dicom_image1
+
         nii_output_adapter.write(dicom_image, f'{output_path}image', gzip)
 
     logging.info('Success!')
