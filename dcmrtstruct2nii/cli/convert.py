@@ -46,8 +46,8 @@ class Convert(PatchedCommand):
             logging.error('dcmrtstruct2nii convert needs the following parameters at minimum: --rtstruct <..> --dicom <..> --output <..>')
             return -1
 
-        if not 1 <= xy_scaling_factor <= 5:
-            logging.error('xy_scaling_factor must be a positive integer between 1-5')
+        if not 1 <= xy_scaling_factor:
+            logging.error('xy_scaling_factor must be a positive integer')
             return -1
 
         try:
