@@ -60,7 +60,11 @@ class DcmPatientCoords2Mask:
 
             try:
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]], xy_scaling_factor=xy_scaling_factor)
-                np_mask[z, filled_poly] = mask_foreground  # sitk is xyz, numpy is zyx
+
+                new_mask = np.logical_xor(np_mask[z, :, :], filled_poly)
+                np_mask[z, :, :] = np.where(new_mask, mask_foreground, mask_background)
+
+                # np_mask[z, filled_poly] = mask_foreground  # sitk is xyz, numpy is zyx
                 # mask = sitk.GetImageFromArray(np_mask)
             except IndexError:
                 # if this is triggered the contour is out of bounds

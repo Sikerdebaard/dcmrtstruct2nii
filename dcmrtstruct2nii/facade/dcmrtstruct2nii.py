@@ -102,16 +102,28 @@ def dcmrtstruct2nii(rtstruct_file,
     if convert_original_dicom:
         logging.info('Converting original DICOM to nii')
         if xy_scaling_factor != 1:
-            dicom_image_arr = sitk.GetArrayFromImage(dicom_image)
-            dicom_image_arr = np.kron(dicom_image_arr, np.ones((1, xy_scaling_factor, xy_scaling_factor)))
-            dicom_image1 = sitk.GetImageFromArray(dicom_image_arr)
+
+            # Resample images to 1mm spacing with SimpleITK #2022.11.25
+            resample = sitk.ResampleImageFilter()
+
+            # Spacing
             spacing = scale_information_tuple(information_tuple=dicom_image.GetSpacing(), xy_scaling_factor=xy_scaling_factor, up=False, out_type=float)
-            dicom_image1.SetSpacing(spacing)
+            resample.SetOutputSpacing(spacing)
+
+            # Output size
+            size = scale_information_tuple(information_tuple=dicom_image.GetSize(), xy_scaling_factor=xy_scaling_factor, up=True, out_type=int)
+            resample.SetSize(size)
+
+            # Original direction
+            resample.SetOutputDirection(dicom_image.GetDirection())
+            resample.SetOutputOrigin(dicom_image.GetOrigin())
+            resample.SetTransform(sitk.Transform())
+            resample.SetDefaultPixelValue(dicom_image.GetPixelIDValue())
 
             # Original direction and origin
-            dicom_image1.SetDirection(dicom_image.GetDirection())
-            dicom_image1.SetOrigin(dicom_image.GetOrigin())
-            dicom_image = dicom_image1
+            resample.SetInterpolator(sitk.sitkBSpline)
+
+            dicom_image = resample.Execute(dicom_image)
 
         nii_output_adapter.write(dicom_image, f'{output_path}image', gzip)
 
