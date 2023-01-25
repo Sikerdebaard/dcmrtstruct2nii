@@ -1,23 +1,38 @@
+import logging
+
+import SimpleITK as sitk
 import numpy as np
 from skimage import draw
-import SimpleITK as sitk
 
 from dcmrtstruct2nii.exceptions import ContourOutOfBoundsException
 
-import logging
+
+def scale_information_tuple(information_tuple: tuple, xy_scaling_factor: int, out_type: type, up: bool = True):
+    scale_array = np.array([xy_scaling_factor, xy_scaling_factor, 1])
+    if up:
+        information_tuple = np.array(information_tuple) * scale_array
+    else:
+        information_tuple = np.array(information_tuple) / scale_array
+
+    return out_type(information_tuple[0]), out_type(information_tuple[1]), out_type(information_tuple[2])
 
 
-class DcmPatientCoords2Mask():
-    def _poly2mask(self, coords_x, coords_y, shape):
+class DcmPatientCoords2Mask:
+    def _poly2mask(self, coords_x, coords_y, shape, xy_scaling_factor):
+        coords_x = coords_x * xy_scaling_factor
+        coords_y = coords_y * xy_scaling_factor
         mask = draw.polygon2mask(tuple(reversed(shape)), np.column_stack((coords_y, coords_x)))
-  
+
         return mask
 
-    def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
-        shape = dicom_image.GetSize()
+    def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground, xy_scaling_factor=1):
+        shape = scale_information_tuple(information_tuple=dicom_image.GetSize(), xy_scaling_factor=xy_scaling_factor, up=True, out_type=int)
+        spacing = scale_information_tuple(information_tuple=dicom_image.GetSpacing(), xy_scaling_factor=xy_scaling_factor, up=False, out_type=float)
 
-        mask = sitk.Image(shape, sitk.sitkUInt8)
-        mask.CopyInformation(dicom_image)
+        mask = sitk.Image(*shape, sitk.sitkUInt8)
+        mask.SetSpacing(spacing)
+        mask.SetDirection(dicom_image.GetDirection())
+        mask.SetOrigin(dicom_image.GetOrigin())
 
         np_mask = sitk.GetArrayFromImage(mask)
         np_mask.fill(mask_background)
@@ -44,9 +59,13 @@ class DcmPatientCoords2Mask():
             z = int(round(pts[0, 2]))
 
             try:
-                filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
-                np_mask[z, filled_poly] = mask_foreground  # sitk is xyz, numpy is zyx
-                mask = sitk.GetImageFromArray(np_mask)
+                filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]], xy_scaling_factor=xy_scaling_factor)
+
+                new_mask = np.logical_xor(np_mask[z, :, :], filled_poly)
+                np_mask[z, :, :] = np.where(new_mask, mask_foreground, mask_background)
+
+                # np_mask[z, filled_poly] = mask_foreground  # sitk is xyz, numpy is zyx
+                # mask = sitk.GetImageFromArray(np_mask)
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()
@@ -56,4 +75,15 @@ class DcmPatientCoords2Mask():
                     raise ContourOutOfBoundsException()
                 raise e  # something serious is going on
 
-        return mask
+        # Get image form final mask
+        final_mask = sitk.GetImageFromArray(np_mask)
+
+        # Adjusted spacing
+        spacing = scale_information_tuple(information_tuple=dicom_image.GetSpacing(), xy_scaling_factor=xy_scaling_factor, up=False, out_type=float)
+        final_mask.SetSpacing(spacing)
+
+        # Original direction and origion
+        final_mask.SetDirection(dicom_image.GetDirection())
+        final_mask.SetOrigin(dicom_image.GetOrigin())
+
+        return final_mask

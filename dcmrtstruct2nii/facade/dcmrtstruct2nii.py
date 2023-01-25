@@ -1,15 +1,15 @@
-from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask
-from dcmrtstruct2nii.adapters.convert.filenameconverter import FilenameConverter
-from dcmrtstruct2nii.adapters.input.contours.rtstructinputadapter import RtStructInputAdapter
-from dcmrtstruct2nii.adapters.input.image.dcminputadapter import DcmInputAdapter
-
+import logging
 import os.path
 
+import numpy as np
+
+from dcmrtstruct2nii.adapters.convert.filenameconverter import FilenameConverter
+from dcmrtstruct2nii.adapters.convert.rtstructcontour2mask import DcmPatientCoords2Mask, scale_information_tuple
+from dcmrtstruct2nii.adapters.input.contours.rtstructinputadapter import RtStructInputAdapter
+from dcmrtstruct2nii.adapters.input.image.dcminputadapter import DcmInputAdapter
 from dcmrtstruct2nii.adapters.output.niioutputadapter import NiiOutputAdapter
 from dcmrtstruct2nii.exceptions import PathDoesNotExistException, ContourOutOfBoundsException
-
-import logging
-
+import SimpleITK as sitk
 
 def list_rt_structs(rtstruct_file):
     """
@@ -26,7 +26,16 @@ def list_rt_structs(rtstruct_file):
     return [struct['name'] for struct in rtstructs]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True, series_id=None):  # noqa: C901 E501
+def dcmrtstruct2nii(rtstruct_file,
+                    dicom_file,
+                    output_path,
+                    structures=None,
+                    gzip=True,
+                    mask_background_value=0,
+                    mask_foreground_value=255,
+                    convert_original_dicom=True,
+                    series_id=None,  # noqa: C901 E501
+                    xy_scaling_factor=1):
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -78,18 +87,44 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
 
             logging.info('Working on mask {}'.format(rtstruct['name']))
             try:
-                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, mask_background_value, mask_foreground_value)
+                mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'],
+                                                          dicom_image,
+                                                          mask_background_value,
+                                                          mask_foreground_value,
+                                                          xy_scaling_factor=xy_scaling_factor)
             except ContourOutOfBoundsException:
                 logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
                 continue
-
-            mask.CopyInformation(dicom_image)
 
             mask_filename = filename_converter.convert(f'mask_{rtstruct["name"]}')
             nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)
 
     if convert_original_dicom:
         logging.info('Converting original DICOM to nii')
+        if xy_scaling_factor != 1:
+
+            # Resample images to 1mm spacing with SimpleITK #2022.11.25
+            resample = sitk.ResampleImageFilter()
+
+            # Spacing
+            spacing = scale_information_tuple(information_tuple=dicom_image.GetSpacing(), xy_scaling_factor=xy_scaling_factor, up=False, out_type=float)
+            resample.SetOutputSpacing(spacing)
+
+            # Output size
+            size = scale_information_tuple(information_tuple=dicom_image.GetSize(), xy_scaling_factor=xy_scaling_factor, up=True, out_type=int)
+            resample.SetSize(size)
+
+            # Original direction
+            resample.SetOutputDirection(dicom_image.GetDirection())
+            resample.SetOutputOrigin(dicom_image.GetOrigin())
+            resample.SetTransform(sitk.Transform())
+            resample.SetDefaultPixelValue(dicom_image.GetPixelIDValue())
+
+            # Original direction and origin
+            resample.SetInterpolator(sitk.sitkBSpline)
+
+            dicom_image = resample.Execute(dicom_image)
+
         nii_output_adapter.write(dicom_image, f'{output_path}image', gzip)
 
     logging.info('Success!')

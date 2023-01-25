@@ -19,6 +19,7 @@ class Convert(PatchedCommand):
         {--f|mask-foreground-color=?255 : Optional, the foreground color used for the mask. Must be between 0-255.}
         {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
         {--c|convert-original-dicom=?true : Optional, convert the original dicom to nii}
+        {--a|xy-scaling-factor=?1 : Optional, Increase pixel density with this factor in xy. Must be 1-5.}
     """
     def handle(self):
         rtstruct_file = self.option('rtstruct')
@@ -36,6 +37,8 @@ class Convert(PatchedCommand):
 
         series_id = self.option('series-id')
 
+        xy_scaling_factor = int(self.option('xy-scaling-factor'))
+
         if structures:
             structures = [x.strip() for x in structures.split(',')]
 
@@ -43,7 +46,12 @@ class Convert(PatchedCommand):
             logging.error('dcmrtstruct2nii convert needs the following parameters at minimum: --rtstruct <..> --dicom <..> --output <..>')
             return -1
 
+        if not 1 <= xy_scaling_factor:
+            logging.error('xy_scaling_factor must be a positive integer')
+            return -1
+
         try:
-            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom, series_id)
+            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom, series_id,
+                            xy_scaling_factor=xy_scaling_factor)
         except (InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException, ValueError,) as e:
             logging.error(str(e))
