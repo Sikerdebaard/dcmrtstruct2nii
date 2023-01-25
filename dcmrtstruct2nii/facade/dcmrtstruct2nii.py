@@ -35,7 +35,8 @@ def dcmrtstruct2nii(rtstruct_file,
                     mask_foreground_value=255,
                     convert_original_dicom=True,
                     series_id=None,  # noqa: C901 E501
-                    xy_scaling_factor=1):
+                    xy_scaling_factor=1,
+                    ):
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -91,7 +92,8 @@ def dcmrtstruct2nii(rtstruct_file,
                                                           dicom_image,
                                                           mask_background_value,
                                                           mask_foreground_value,
-                                                          xy_scaling_factor=xy_scaling_factor)
+                                                          xy_scaling_factor=xy_scaling_factor,
+                                                         )
             except ContourOutOfBoundsException:
                 logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
                 continue

@@ -20,6 +20,7 @@ class Convert(PatchedCommand):
         {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
         {--c|convert-original-dicom=?true : Optional, convert the original dicom to nii}
         {--a|xy-scaling-factor=?1 : Optional, Increase pixel density with this factor in xy. Must be 1-5.}
+
     """
     def handle(self):
         rtstruct_file = self.option('rtstruct')
@@ -47,7 +48,7 @@ class Convert(PatchedCommand):
             return -1
 
         if not 1 <= xy_scaling_factor:
-            logging.error('xy_scaling_factor must be a positive integer')
+            logging.error('xy-scaling-factor must be a positive integer')
             return -1
 
         try:
