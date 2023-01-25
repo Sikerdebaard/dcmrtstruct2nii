@@ -1,4 +1,4 @@
-from cleo.commands.command import Command
+from cleo import Command
 import logging
 
 from dcmrtstruct2nii.facade.dcmrtstruct2nii import list_rt_structs

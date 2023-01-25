@@ -1,9 +1,1 @@
 .
-
-setuptools~=63.4.1
-cleo~=0.8.1
-clikit~=0.6.2
-numpy~=1.23.3
-simpleitk~=2.2.0
-pydicom~=2.3.0
-scikit-image~=0.19.3
