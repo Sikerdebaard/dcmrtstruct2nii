@@ -10,7 +10,7 @@ import logging
 class DcmPatientCoords2Mask():
     def _poly2mask(self, coords_x, coords_y, shape):
         mask = draw.polygon2mask(tuple(reversed(shape)), np.column_stack((coords_y, coords_x)))
-  
+
         return mask
 
     def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
@@ -45,8 +45,8 @@ class DcmPatientCoords2Mask():
 
             try:
                 filled_poly = self._poly2mask(pts[:, 0], pts[:, 1], [shape[0], shape[1]])
-                np_mask[z, filled_poly] = mask_foreground  # sitk is xyz, numpy is zyx
-                mask = sitk.GetImageFromArray(np_mask)
+                new_mask = np.logical_xor(np_mask[z, :, :], filled_poly)
+                np_mask[z, :, :] = np.where(new_mask, mask_foreground, mask_background)
             except IndexError:
                 # if this is triggered the contour is out of bounds
                 raise ContourOutOfBoundsException()
@@ -56,4 +56,5 @@ class DcmPatientCoords2Mask():
                     raise ContourOutOfBoundsException()
                 raise e  # something serious is going on
 
+        mask = sitk.GetImageFromArray(np_mask)  ## Avoid redundant calls by moving this here
         return mask
