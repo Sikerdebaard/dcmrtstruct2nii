@@ -83,7 +83,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
                 logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
                 continue
 
-            mask.CopyInformation(dicom_image)
+#            mask.CopyInformation(dicom_image)
 
             mask_filename = filename_converter.convert(f'mask_{rtstruct["name"]}')
             nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)

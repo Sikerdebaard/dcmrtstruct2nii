@@ -1,5 +1,7 @@
 import importlib
 import logging
+import threading
+from multiprocessing.pool import ThreadPool
 
 import SimpleITK as sitk
 import numpy as np
@@ -7,31 +9,33 @@ from skimage import draw
 
 try:
     import numba
-    from numba import njit
+    print("Numba installed")
+
 except:
     print("Numba not installed")
 
 numba_exists = importlib.util.find_spec("numba") is not None
 
-def maybe_use_numba():
+def conditional_decorator(dec, condition):
     def decorator(func):
-        if not importlib.util.find_spec("numba"):
+        if not condition:
+            # Return the function unchanged, not decorated.
             return func
-        return func
+        return dec(func)
     return decorator
 
-def _poly2mask(coords_yx, shape_x, shape_y):
-    mask = draw.polygon2mask((shape_y, shape_x), coords_yx)
+def _poly2mask(coords_x, coords_y, shape_x, shape_y):
+    mask = draw.polygon2mask((shape_y, shape_x), np.column_stack((coords_y, coords_x)))
     return mask
 
 
-@maybe_use_numba()
+@conditional_decorator(dec=numba.njit, condition=numba_exists)
 def _get_m_PhysicalPointToIndex(spacing, direction):
     """
     This generats the transform matrix used to turn coordinates into indices.
     See explanation under method "_transform_physical_point_to_continuous_index"
     """
-    s = np.array(spacing) # XYZ
+    s = np.array(spacing)  # XYZ
     d = np.array(direction).reshape(3, 3)
 
     # The variable names are the same as in ITK. Makes it easier to look for explanation
@@ -40,7 +44,7 @@ def _get_m_PhysicalPointToIndex(spacing, direction):
 
     return m_PhysicalPointToIndex
 
-@maybe_use_numba()
+@conditional_decorator(dec=numba.njit, condition=numba_exists)
 def update_array(np_mask, filled_poly, z, mask_foreground, mask_background):
     # xor logic to allow holes in contours
     new_mask = np.logical_xor(np_mask[z, :, :], filled_poly)
@@ -49,7 +53,7 @@ def update_array(np_mask, filled_poly, z, mask_foreground, mask_background):
     np_mask[z, :, :] = np.where(new_mask, mask_foreground, mask_background)
 
 
-@maybe_use_numba()
+@conditional_decorator(dec=numba.njit, condition=numba_exists)
 def _transform_physical_point_to_continuous_index(coordinates, m_PhysicalPointToIndex, origin):
     """
     This method does the same as SimpleITK's TransformPhysicalPointToContinuousIndex, but in a vectorized fashion.
@@ -104,13 +108,14 @@ class DcmPatientCoords2Mask:
 
             try:
                 # Generate the mask from Y X transformed coordinates
-                filled_poly = _poly2mask(coords_yx=coords_t[:, 1::-1], shape_x=shape[0], shape_y=shape[1])
+                filled_poly = _poly2mask(coords_x=coords_t[:, 0], coords_y=coords_t[:, 1], shape_x=shape[0], shape_y=shape[1])
 
                 # Gets first Z of this contour
                 z = int(round(coords_t[0, 2]))
 
                 # Update the array. This way to take advantage of numba
                 update_array(np_mask=np_mask, filled_poly=filled_poly, z=z, mask_foreground=mask_foreground, mask_background=mask_background)
+
             except Exception as e:
                 print(e)
 
