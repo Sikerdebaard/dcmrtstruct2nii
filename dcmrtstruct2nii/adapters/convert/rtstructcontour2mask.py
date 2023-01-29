@@ -27,7 +27,7 @@ def _poly2mask(coords_x, coords_y, shape_x, shape_y):
 
 
 @conditional_decorator(njit, numba_exists)
-def _set_transform_variables(spacing, direction, origin):
+def _get_transform_matrix(spacing, direction, origin):
     """
     this returns the basics needed to run _transform_physical_point_to_continuous_index
     """
@@ -83,7 +83,7 @@ class DcmPatientCoords2Mask:
 
     def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
         shape = dicom_image.GetSize()
-        self.m_PhysicalPointToIndex, self.origins = _set_transform_variables(spacing=dicom_image.GetSpacing(),
+        self.m_PhysicalPointToIndex, self.origins = _get_transform_matrix(spacing=dicom_image.GetSpacing(),
                                                                              direction=dicom_image.GetDirection(),
                                                                              origin=dicom_image.GetOrigin())
         # Init np_mask
