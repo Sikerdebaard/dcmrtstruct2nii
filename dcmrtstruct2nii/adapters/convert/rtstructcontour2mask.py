@@ -1,35 +1,15 @@
-import importlib
 import logging
-import threading
-from multiprocessing.pool import ThreadPool
 
 import SimpleITK as sitk
 import numpy as np
 from skimage import draw
 
-try:
-    import numba
-    print("Numba installed")
-
-except:
-    print("Numba not installed")
-
-numba_exists = importlib.util.find_spec("numba") is not None
-
-def conditional_decorator(dec, condition):
-    def decorator(func):
-        if not condition:
-            # Return the function unchanged, not decorated.
-            return func
-        return dec(func)
-    return decorator
 
 def _poly2mask(coords_x, coords_y, shape_x, shape_y):
     mask = draw.polygon2mask((shape_y, shape_x), np.column_stack((coords_y, coords_x)))
     return mask
 
 
-@conditional_decorator(dec=numba.njit, condition=numba_exists)
 def _get_m_PhysicalPointToIndex(spacing, direction):
     """
     This generats the transform matrix used to turn coordinates into indices.
@@ -44,7 +24,7 @@ def _get_m_PhysicalPointToIndex(spacing, direction):
 
     return m_PhysicalPointToIndex
 
-@conditional_decorator(dec=numba.njit, condition=numba_exists)
+
 def update_array(np_mask, filled_poly, z, mask_foreground, mask_background):
     # xor logic to allow holes in contours
     new_mask = np.logical_xor(np_mask[z, :, :], filled_poly)
@@ -53,7 +33,6 @@ def update_array(np_mask, filled_poly, z, mask_foreground, mask_background):
     np_mask[z, :, :] = np.where(new_mask, mask_foreground, mask_background)
 
 
-@conditional_decorator(dec=numba.njit, condition=numba_exists)
 def _transform_physical_point_to_continuous_index(coordinates, m_PhysicalPointToIndex, origin):
     """
     This method does the same as SimpleITK's TransformPhysicalPointToContinuousIndex, but in a vectorized fashion.
@@ -72,11 +51,11 @@ def _transform_physical_point_to_continuous_index(coordinates, m_PhysicalPointTo
     idxs = pts_intermediary @ m_PhysicalPointToIndex
     return idxs
 
+
 class DcmPatientCoords2Mask:
     def __init__(self):
         self.m_PhysicalPointToIndex = None
         self.origin = None
-
 
     def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):
         shape = dicom_image.GetSize()
@@ -102,9 +81,8 @@ class DcmPatientCoords2Mask:
 
             # transform points to continous index
             coords_t = _transform_physical_point_to_continuous_index(coordinates=coords,
-                                                                m_PhysicalPointToIndex=self.m_PhysicalPointToIndex,
-                                                                origin=self.origin)
-
+                                                                     m_PhysicalPointToIndex=self.m_PhysicalPointToIndex,
+                                                                     origin=self.origin)
 
             try:
                 # Generate the mask from Y X transformed coordinates
@@ -118,7 +96,6 @@ class DcmPatientCoords2Mask:
 
             except Exception as e:
                 print(e)
-
 
         # Get the generated mask as sitk.Image and copy information from dicom image
         mask = sitk.GetImageFromArray(np_mask)
