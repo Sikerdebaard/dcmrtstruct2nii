@@ -20,6 +20,8 @@ class Convert(PatchedCommand):
         {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
         {--c|convert-original-dicom=?true : Optional, convert the original dicom to nii}
         {--a|xy-scaling-factor=?1 : Optional, Increase pixel density with this factor in xy. Must be 1-5.}
+        {--x|crop-mask=?false : Optional, Crops masks to ROI - saves space with high xy scaling factors}
+
 
     """
     def handle(self):
@@ -39,6 +41,7 @@ class Convert(PatchedCommand):
         series_id = self.option('series-id')
 
         xy_scaling_factor = int(self.option('xy-scaling-factor'))
+        crop_mask = self._castToBool(self.option('crop-mask'))
 
         if structures:
             structures = [x.strip() for x in structures.split(',')]
@@ -53,6 +56,6 @@ class Convert(PatchedCommand):
 
         try:
             dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom, series_id,
-                            xy_scaling_factor=xy_scaling_factor)
+                            xy_scaling_factor=xy_scaling_factor, crop_mask=crop_mask)
         except (InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException, ValueError,) as e:
             logging.error(str(e))

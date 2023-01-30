@@ -7,6 +7,7 @@ from skimage import draw
 
 from dcmrtstruct2nii.exceptions import ContourOutOfBoundsException
 
+
 def scale_information_tuple(information_tuple: tuple, xy_scaling_factor: int, out_type: type, up: bool = True):
     scale_array = np.array([xy_scaling_factor, xy_scaling_factor, 1])
     if up:
@@ -108,13 +109,11 @@ class DcmPatientCoords2Mask:
             except Exception as e:
                 print(e)
 
-
-
         # np_mask to image
         final_mask = sitk.GetImageFromArray(np_mask.astype(np.uint8))  # Had trouble with the type. Use np.uint8!
+        # Set image meta
         final_mask.SetDirection(dicom_image.GetDirection())
         final_mask.SetOrigin(dicom_image.GetOrigin())
-
         spacing = scale_information_tuple(information_tuple=dicom_image.GetSpacing(), xy_scaling_factor=xy_scaling_factor, up=False, out_type=float)
         final_mask.SetSpacing(spacing)
 
