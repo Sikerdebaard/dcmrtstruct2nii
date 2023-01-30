@@ -85,8 +85,21 @@ def dcmrtstruct2nii(rtstruct_file,
     dcm_patient_coords_to_mask = DcmPatientCoords2Mask()
     nii_output_adapter = NiiOutputAdapter()
 
+    # Sort structures. If starts with ~ move to skip_structures
+    skip_structures = []
+    for structure in reversed(structures):
+        if structure.startswith("~"):
+            skip_structures.append(structure[1:])
+            structures.remove(structure)
+
     for rtstruct in rtstructs:
         if len(structures) == 0 or rtstruct['name'] in structures:
+
+            # Check if structure is in skipstructure
+            if rtstruct["name"] in skip_structures:
+                print(f"Skipping {rtstruct['name']}")
+                continue
+
             if 'sequence' not in rtstruct:
                 logging.info('Skipping mask {} no shape/polygon found'.format(rtstruct['name']))
                 continue
