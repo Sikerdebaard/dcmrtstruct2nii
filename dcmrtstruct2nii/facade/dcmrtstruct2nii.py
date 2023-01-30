@@ -122,7 +122,7 @@ def dcmrtstruct2nii(rtstruct_file,
                 mask, crop_meta = crop_mask_to_roi(mask_as_img=mask,
                                                    xy_scaling_factor=xy_scaling_factor)
                 nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)
-                with open(mask_filename + ".json", "w") as f:
+                with open(f'{output_path}{mask_filename}' + ".json", "w") as f:
                     f.write(json.dumps(crop_meta))
             else:  # Only write image and do not crop
                 nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)
