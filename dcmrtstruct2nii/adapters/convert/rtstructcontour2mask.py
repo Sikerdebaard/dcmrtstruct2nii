@@ -81,7 +81,7 @@ class DcmPatientCoords2Mask:
                     logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
                 else:
                     logging.info(f'Skipping unnamed contour, unsupported type: {contour["type"]}')
-                return
+                continue
 
             # Stack coordinate components to one array
             coordinates = contour['points']

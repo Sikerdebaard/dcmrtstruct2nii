@@ -25,7 +25,7 @@ setup(
         'scikit-image>=0.17.1',
         'scipy>=1.2.0',
         'SimpleITK>=1.2.0',
-        'cleo>=0.7.2'
+        'cleo==0.8.1'
     ],
     entry_points={
         'console_scripts': [
