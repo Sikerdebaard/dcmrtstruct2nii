@@ -8,6 +8,8 @@ import warnings
 
 
 def gen_compare_list(tmpdir, keep_files=False):
+    stwstrategyhn1_testdata_dir = Path('testdata/stwstrategyhn1')
+
     dataset = Path(tmpdir) / 'stwstrategyhn1'
     dcmrtstruct2niidir = Path(tmpdir) / 'dcmrtstruct2nii'
 
@@ -49,7 +51,7 @@ def gen_compare_list(tmpdir, keep_files=False):
                 continue 
 
             niicounter += 1
-            niftis = list(subject_dir.glob(f'**/{nii.name}'))
+            niftis = list((stwstrategyhn1_testdata_dir / subject.label).glob(f'**/{nii.name}'))
 
             if len(niftis) > 1 or len(niftis) <= 0:
                 assert False, f'> 1 niftis or <= 0 niftis {nii.name} found for subject {subject.label}, something changed in the dataset?'
@@ -101,8 +103,9 @@ def test_bmia_stwstrategyhn1(tmpdir):
     
     right = gen_compare_list(tmpdir)
     
-    # check if the Intersection over Union is within .1 of the expected value
-    assert all(_cmp_left_right(left, right, 'iou', lambda x, y: abs(x - y) < .1).values())
+    # check if the Intersection over Union is within err_thresh of the expected value
+    err_thresh = .1
+    assert all(_cmp_left_right(left, right, 'iou', lambda x, y: abs(x - y) < err_thresh).values())
 
     # compare mask hashes, throw warning if not equal 
     hashes = _cmp_left_right(left, right, 'h_pred', lambda x, y: x == y)

@@ -15,8 +15,10 @@ class DcmInputAdapter(AbstractInputAdapter):
             :return: multidimensional array with pixel data, metadata
         '''
         dicom_reader = sitk.ImageSeriesReader()
+
         if series_id is None:
             series_id = ''
+
         dicom_file_names = dicom_reader.GetGDCMSeriesFileNames(str(input_dir), seriesID=series_id)
 
         if not dicom_file_names:

@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='dcmrtstruct2nii',
-    version='2',
+    version='3',
     description='Convert DICOM RT-Struct to nii',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -25,7 +25,7 @@ setup(
         'scikit-image>=0.17.1',
         'scipy>=1.2.0',
         'SimpleITK>=1.2.0',
-        'cleo>=0.7.2'
+        'cleo>=2.0.0'
     ],
     entry_points={
         'console_scripts': [

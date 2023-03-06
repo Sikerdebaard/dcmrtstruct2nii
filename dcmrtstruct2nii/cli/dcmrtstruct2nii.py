@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from cleo import Application
+from cleo.application import Application
 
 from dcmrtstruct2nii.cli import ListStructs, Convert
 
