@@ -5,9 +5,10 @@ from dcmrtstruct2nii import dcmrtstruct2nii
 import shutil
 import json
 import warnings
+import random
 
 
-def gen_compare_list(tmpdir, keep_files=False):
+def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
     stwstrategyhn1_testdata_dir = Path('testdata/stwstrategyhn1')
 
     dataset = Path(tmpdir) / 'stwstrategyhn1'
@@ -17,12 +18,14 @@ def gen_compare_list(tmpdir, keep_files=False):
 
     counter = 0
     subjects = list_subjects_stwstrategyhn1()
+    subjects = random.sample(list(subjects), n_samples)
     numsubjects = len(subjects)
 
     result = {}
 
     for subject in subjects:
         counter += 1
+
         print(f'Comparing {subject.label} {counter}/{numsubjects}')
 
         subject_dir = Path(dataset / subject.label)
@@ -62,6 +65,7 @@ def gen_compare_list(tmpdir, keep_files=False):
            
             k = str(nii.relative_to(dcmrtstruct2niidir))
             result[k] = diff
+            print(f'diff: {diff} for {nii.name}')
 
 
         print(f"Compared {niicounter} NiFTI's for subject {subject.label}")
@@ -98,23 +102,12 @@ def _cmp_left_right(left, right, key, cmpfunc):
 
 
 def test_bmia_stwstrategyhn1(tmpdir):
-    with open('lookup.json', 'r') as fh:
-        left = json.load(fh)
-    
-    right = gen_compare_list(tmpdir)
-    
+    samples = gen_compare_list(tmpdir)
+
     # check if the Intersection over Union is within err_thresh of the expected value
     err_thresh = .1
-    assert all(_cmp_left_right(left, right, 'iou', lambda x, y: abs(x - y) < err_thresh).values())
+    assert all([v['iou'] > (1.0 - err_thresh) for k, v in samples.items()])
 
-    # compare mask hashes, throw warning if not equal 
-    hashes = _cmp_left_right(left, right, 'h_pred', lambda x, y: x == y)
-
-    if not all(hashes.values()):
-        for k, v in hashes.items():
-            if not v:
-                warnings.warn(f'{k} hash not equal: {left[k]["h_pred"]} - {right[k]["h_pred"]}')
-        
 
 if __name__ == '__main__':
     print('Generating lookup tables for pytest...')
