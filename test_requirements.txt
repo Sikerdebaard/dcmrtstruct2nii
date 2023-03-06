@@ -82,3 +82,4 @@ xnat>=0.3.25
 nibabel>=3.2.1
 filehash>=0.1.dev5
 flake8>=3.8.4
+psutil>=5.9.4

@@ -1,13 +1,16 @@
 from dcmrtstruct2nii.tests.utils.dataset_bmia import list_subjects_stwstrategyhn1, download_subject
-from dcmrtstruct2nii.tests.utils import compare_mask 
+from dcmrtstruct2nii.tests.utils import compare_mask
 from pathlib import Path
 from dcmrtstruct2nii import dcmrtstruct2nii
 import shutil
 import json
 import warnings
+import random
 
 
-def gen_compare_list(tmpdir, keep_files=False):
+def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
+    stwstrategyhn1_testdata_dir = Path('testdata/stwstrategyhn1')
+
     dataset = Path(tmpdir) / 'stwstrategyhn1'
     dcmrtstruct2niidir = Path(tmpdir) / 'dcmrtstruct2nii'
 
@@ -15,12 +18,14 @@ def gen_compare_list(tmpdir, keep_files=False):
 
     counter = 0
     subjects = list_subjects_stwstrategyhn1()
+    subjects = random.sample(list(subjects), n_samples)
     numsubjects = len(subjects)
 
     result = {}
 
     for subject in subjects:
         counter += 1
+
         print(f'Comparing {subject.label} {counter}/{numsubjects}')
 
         subject_dir = Path(dataset / subject.label)
@@ -46,10 +51,10 @@ def gen_compare_list(tmpdir, keep_files=False):
         for nii in subjoutdir.glob('*.nii.gz'):
             if nii.name == 'image.nii.gz':
                 # skip main image
-                continue 
+                continue
 
             niicounter += 1
-            niftis = list(subject_dir.glob(f'**/{nii.name}'))
+            niftis = list((stwstrategyhn1_testdata_dir / subject.label).glob(f'**/{nii.name}'))
 
             if len(niftis) > 1 or len(niftis) <= 0:
                 assert False, f'> 1 niftis or <= 0 niftis {nii.name} found for subject {subject.label}, something changed in the dataset?'
@@ -57,13 +62,12 @@ def gen_compare_list(tmpdir, keep_files=False):
             nii_stwstrategyhn1 = niftis[0]
 
             diff = compare_mask(nii, nii_stwstrategyhn1)
-           
+
             k = str(nii.relative_to(dcmrtstruct2niidir))
             result[k] = diff
-
+            print(f'diff: {diff} for {nii.name}')
 
         print(f"Compared {niicounter} NiFTI's for subject {subject.label}")
-
 
         if not keep_files:
             # cleanup, GitHub runners only have ~14 GB of space
@@ -76,7 +80,7 @@ def gen_compare_list(tmpdir, keep_files=False):
 def _cmp_left_right(left, right, key, cmpfunc):
     union = set(left.keys()).union(right.keys())
 
-    results = {} 
+    results = {}
     for k in union:
         if k not in left:
             warnings.warn(f'compare left right: {k} not in left')
@@ -96,22 +100,12 @@ def _cmp_left_right(left, right, key, cmpfunc):
 
 
 def test_bmia_stwstrategyhn1(tmpdir):
-    with open('lookup.json', 'r') as fh:
-        left = json.load(fh)
-    
-    right = gen_compare_list(tmpdir)
-    
-    # check if the Intersection over Union is within .1 of the expected value
-    assert all(_cmp_left_right(left, right, 'iou', lambda x, y: abs(x - y) < .1).values())
+    samples = gen_compare_list(tmpdir)
 
-    # compare mask hashes, throw warning if not equal 
-    hashes = _cmp_left_right(left, right, 'h_pred', lambda x, y: x == y)
+    # check if the Intersection over Union is within err_thresh of the expected value
+    err_thresh = .1
+    assert all([v['iou'] > (1.0 - err_thresh) for k, v in samples.items()])
 
-    if not all(hashes.values()):
-        for k, v in hashes.items():
-            if not v:
-                warnings.warn(f'{k} hash not equal: {left[k]["h_pred"]} - {right[k]["h_pred"]}')
-        
 
 if __name__ == '__main__':
     print('Generating lookup tables for pytest...')

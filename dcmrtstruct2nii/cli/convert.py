@@ -2,24 +2,78 @@ from dcmrtstruct2nii.cli.wrapper.patchedcommand import PatchedCommand
 from dcmrtstruct2nii.exceptions import InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException
 from dcmrtstruct2nii.facade.dcmrtstruct2nii import dcmrtstruct2nii
 
+from cleo.helpers import option
+
 import logging
 
 
 class Convert(PatchedCommand):
-    """
-    Convert RT Struct to nii. If no structures are specified all will be converted.
+    name = "convert"
+    description = "Convert RT Struct to nii. If no structures are specified all will be converted."
 
-    convert
-        {--r|rtstruct= : Path to DICOM RT Struct file, example: /tmp/DICOM/resources/secondary/rtstruct.dcm}
-        {--d|dicom= : Path to original DICOM file, example: /tmp/DICOM/resources/files}
-        {--o|output= : Output path, example: /tmp/output}
-        {--g|gzip=?true : Optional, gzip output .nii}
-        {--s|structures=? : Optional, list of structures that need to be converted, example: Patient, Spinal, Dose-1}
-        {--i|series-id=? : Optional, the Series ID of the image DICOMs. Use to exclude other series in the same directory}
-        {--f|mask-foreground-color=?255 : Optional, the foreground color used for the mask. Must be between 0-255.}
-        {--b|mask-background-color=?0 : Optional, the background color used for the mask. Must be between 0-255.}
-        {--c|convert-original-dicom=?true : Optional, convert the original dicom to nii}
-    """
+    options = [
+        option(
+            "rtstruct",
+            "r",
+            description="Path to DICOM RT Struct file, example: /tmp/DICOM/resources/secondary/rtstruct.dcm",
+            flag=False,
+        ),
+        option(
+            "dicom",
+            "d",
+            description="Path to original DICOM file, example: /tmp/DICOM/resources/files",
+            flag=False,
+        ),
+        option(
+            "output",
+            "o",
+            description="Output path, example: /tmp/output",
+            flag=False,
+        ),
+        option(
+            "gzip",
+            "g",
+            description="Gzip output .nii",
+            flag=False,
+            default=True,
+        ),
+        option(
+            "structures",
+            "s",
+            description="List of structures that need to be converted, example: Patient, Spinal, Dose-1",
+            multiple=True,
+            flag=False,
+        ),
+        option(
+            "series-id",
+            "i",
+            description="The Series ID of the image DICOMs. Use to exclude other series in the same directory",
+            flag=False,
+            default=None,
+        ),
+        option(
+            "mask-foreground-color",
+            "f",
+            description="The foreground color used for the mask. Must be between 0-255.",
+            default=255,
+            flag=False,
+        ),
+        option(
+            "mask-background-color",
+            "b",
+            description="The foreground color used for the mask. Must be between 0-255.",
+            default=0,
+            flag=False,
+        ),
+        option(
+            "convert-original-dicom",
+            "c",
+            description="Convert the original dicom to nii.",
+            default=True,
+            flag=False,
+        ),
+    ]
+
     def handle(self):
         rtstruct_file = self.option('rtstruct')
         dicom_file = self.option('dicom')

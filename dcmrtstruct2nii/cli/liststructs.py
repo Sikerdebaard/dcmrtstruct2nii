@@ -1,16 +1,24 @@
-from cleo import Command
+from cleo.commands.command import Command
+from cleo.helpers import option
+
 import logging
 
 from dcmrtstruct2nii.facade.dcmrtstruct2nii import list_rt_structs
 
 
 class ListStructs(Command):
-    """
-    List structures in RT Struct
+    name = "list"
+    description = "List structures in RT Struct"
 
-    list
-        {--r|rtstruct= : Path to DICOM RT Struct file}
-    """
+    options = [
+        option(
+            "rtstruct",
+            "r",
+            description="Path to DICOM RT Struct file, example: /tmp/DICOM/resources/secondary/rtstruct.dcm",
+            flag=False,
+        ),
+    ]
+
     def handle(self):
         file_path = self.option('rtstruct')
 
