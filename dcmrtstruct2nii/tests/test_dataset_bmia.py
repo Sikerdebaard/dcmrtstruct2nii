@@ -1,5 +1,5 @@
 from dcmrtstruct2nii.tests.utils.dataset_bmia import list_subjects_stwstrategyhn1, download_subject
-from dcmrtstruct2nii.tests.utils import compare_mask 
+from dcmrtstruct2nii.tests.utils import compare_mask
 from pathlib import Path
 from dcmrtstruct2nii import dcmrtstruct2nii
 import shutil
@@ -51,7 +51,7 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
         for nii in subjoutdir.glob('*.nii.gz'):
             if nii.name == 'image.nii.gz':
                 # skip main image
-                continue 
+                continue
 
             niicounter += 1
             niftis = list((stwstrategyhn1_testdata_dir / subject.label).glob(f'**/{nii.name}'))
@@ -62,14 +62,12 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
             nii_stwstrategyhn1 = niftis[0]
 
             diff = compare_mask(nii, nii_stwstrategyhn1)
-           
+
             k = str(nii.relative_to(dcmrtstruct2niidir))
             result[k] = diff
             print(f'diff: {diff} for {nii.name}')
 
-
         print(f"Compared {niicounter} NiFTI's for subject {subject.label}")
-
 
         if not keep_files:
             # cleanup, GitHub runners only have ~14 GB of space
@@ -82,7 +80,7 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
 def _cmp_left_right(left, right, key, cmpfunc):
     union = set(left.keys()).union(right.keys())
 
-    results = {} 
+    results = {}
     for k in union:
         if k not in left:
             warnings.warn(f'compare left right: {k} not in left')

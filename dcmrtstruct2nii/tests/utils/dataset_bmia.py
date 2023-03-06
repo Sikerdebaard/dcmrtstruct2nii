@@ -69,4 +69,3 @@ def download_subject(subject, datafolder):
             scan.download_dir(str(outdir), verbose=False)
 
     return True
-

@@ -21,7 +21,6 @@ def compare_mask(pred, target):
     img2_data = img2.get_fdata()
     img2_data = np.where(img2_data > 0, 1, 0).astype('uint8')
 
-
     iou_score = _iou(img1_data, img2_data)
 
     h_pred = sha256(np.ascontiguousarray(img1_data)).hexdigest()

@@ -10,7 +10,7 @@ import logging
 class DcmPatientCoords2Mask():
     def _poly2mask(self, coords_x, coords_y, shape):
         mask = draw.polygon2mask(tuple(reversed(shape)), np.column_stack((coords_y, coords_x)))
-  
+
         return mask
 
     def convert(self, rtstruct_contours, dicom_image, mask_background, mask_foreground):

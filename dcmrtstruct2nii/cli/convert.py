@@ -2,8 +2,7 @@ from dcmrtstruct2nii.cli.wrapper.patchedcommand import PatchedCommand
 from dcmrtstruct2nii.exceptions import InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException
 from dcmrtstruct2nii.facade.dcmrtstruct2nii import dcmrtstruct2nii
 
-from pathlib import Path
-from cleo.helpers import argument, option
+from cleo.helpers import option
 
 import logging
 
@@ -11,7 +10,7 @@ import logging
 class Convert(PatchedCommand):
     name = "convert"
     description = "Convert RT Struct to nii. If no structures are specified all will be converted."
-    
+
     options = [
         option(
             "rtstruct",
@@ -74,7 +73,6 @@ class Convert(PatchedCommand):
             flag=False,
         ),
     ]
-
 
     def handle(self):
         rtstruct_file = self.option('rtstruct')
