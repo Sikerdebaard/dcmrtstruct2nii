@@ -16,7 +16,7 @@ from dcmrtstruct2nii.cite import cite
 from termcolor import cprint
 
 cprint('\nPlease cite:', attrs=["bold"])
-cprint(f'{cite}')
+cprint(f'{cite}\n')
 
 
 def list_rt_structs(rtstruct_file):
