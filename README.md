@@ -49,8 +49,8 @@ dcmrtstruct2nii('/path/to/dicom/rtstruct/file.dcm', '/path/to/original/extracted
 
 The program is licensed [Apache license 2.0](https://github.com/Sikerdebaard/dcmrtstruct2nii/blob/master/LICENSE).
 
-For academic use, use a presistent copy from [![DOI](https://zenodo.org/badge/166835376.svg)](https://zenodo.org/badge/latestdoi/166835376). 
+For academic use, use a presistent copy from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4037864.svg)](https://doi.org/10.5281/zenodo.4037864). 
 
 Please cite:
 
-```Thomas Phil (2022). Sikerdebaard/dcmrtstruct2nii: dcmrtstruct2nii v2 (Version v2). Zenodo. https://doi.org/10.5281/zenodo.6330598```
+```Thomas Phil, Thomas Albrecht, Skylar Gay, & Mathis Ersted Rasmussen. (2022). Sikerdebaard/dcmrtstruct2nii: dcmrtstruct2nii v3 (Version v3). Zenodo. https://doi.org/10.5281/zenodo.4037864```

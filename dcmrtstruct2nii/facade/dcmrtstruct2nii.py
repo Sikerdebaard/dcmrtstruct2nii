@@ -11,6 +11,13 @@ from dcmrtstruct2nii.exceptions import PathDoesNotExistException, ContourOutOfBo
 import logging
 
 
+# cite
+from dcmrtstruct2nii.cite import cite
+from termcolor import colored, cprint
+
+cprint(f'\nPlease cite:', attrs=["bold"])
+cprint(f'{cite}')
+
 def list_rt_structs(rtstruct_file):
     """
     Lists the structures in an DICOM RT Struct file by name.
