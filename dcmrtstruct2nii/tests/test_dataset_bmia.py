@@ -17,8 +17,11 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
     dcmrtstruct2niidir.mkdir(exist_ok=True)
 
     counter = 0
-    subjects = list_subjects_stwstrategyhn1()
-    subjects = random.sample(list(subjects), n_samples)
+    subjects = list(list_subjects_stwstrategyhn1())
+    if len(subjects) < n_samples:
+        n_samples = len(subjects)
+    else:
+        subjects = random.sample(list(subjects), n_samples)
     numsubjects = len(subjects)
 
     result = {}
@@ -66,6 +69,7 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
             k = str(nii.relative_to(dcmrtstruct2niidir))
             result[k] = diff
             print(f'diff: {diff} for {nii.name}')
+            #assert diff['iou'] >= .9
 
         print(f"Compared {niicounter} NiFTI's for subject {subject.label}")
 
