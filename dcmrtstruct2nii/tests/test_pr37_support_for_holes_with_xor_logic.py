@@ -5,9 +5,6 @@ from dcmrtstruct2nii import dcmrtstruct2nii
 
 from pathlib import Path
 
-import shutil
-import gzip
-
 
 def test_compare_iou(tmpdir):
     workdir = Path(tmpdir) / 'test_compare_iou'
@@ -39,8 +36,8 @@ def test_compare_iou(tmpdir):
     oldmethodniis = {f.name: f for f in groundtruthdir.glob('old_method/*.nii.gz')}
     for nii in outdir.glob('*.nii.gz'):
         if nii.name == 'image.nii.gz':
-                # skip main image
-                continue
+            # skip main image
+            continue
 
         diff = compare_mask(nii, groundtruthniis[nii.name])
         assert diff['iou'] > .9

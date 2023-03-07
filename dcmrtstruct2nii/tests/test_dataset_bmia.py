@@ -69,7 +69,6 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
             k = str(nii.relative_to(dcmrtstruct2niidir))
             result[k] = diff
             print(f'diff: {diff} for {nii.name}')
-            #assert diff['iou'] >= .9
 
         print(f"Compared {niicounter} NiFTI's for subject {subject.label}")
 

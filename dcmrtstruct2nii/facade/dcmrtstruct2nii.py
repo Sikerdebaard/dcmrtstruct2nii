@@ -13,10 +13,11 @@ import logging
 
 # cite
 from dcmrtstruct2nii.cite import cite
-from termcolor import colored, cprint
+from termcolor import cprint
 
-cprint(f'\nPlease cite:', attrs=["bold"])
+cprint('\nPlease cite:', attrs=["bold"])
 cprint(f'{cite}')
+
 
 def list_rt_structs(rtstruct_file):
     """

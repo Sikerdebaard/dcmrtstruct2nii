@@ -56,5 +56,5 @@ class DcmPatientCoords2Mask():
                     raise ContourOutOfBoundsException()
                 raise e  # something serious is going on
 
-        mask = sitk.GetImageFromArray(np_mask)  ## Avoid redundant calls by moving this here
+        mask = sitk.GetImageFromArray(np_mask)  # Avoid redundant calls by moving this here
         return mask

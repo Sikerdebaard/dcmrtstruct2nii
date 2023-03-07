@@ -2,14 +2,14 @@
 
 from cleo.application import Application
 
-from dcmrtstruct2nii.cli import ListStructs, Convert
+from dcmrtstruct2nii.cli import Convert, ListStructs 
 
 import logging
 
 application = Application()
 
-application.add(ListStructs())
 application.add(Convert())
+application.add(ListStructs())
 
 
 def run():

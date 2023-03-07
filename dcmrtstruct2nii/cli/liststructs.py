@@ -7,7 +7,7 @@ from dcmrtstruct2nii.facade.dcmrtstruct2nii import list_rt_structs
 
 
 class ListStructs(Command):
-    name = "list"
+    name = "ls"
     description = "List structures in RT Struct"
 
     options = [
@@ -23,7 +23,7 @@ class ListStructs(Command):
         file_path = self.option('rtstruct')
 
         if not file_path:
-            logging.error('dcmrtstruct2nii list --rtstruct <..>')
+            self.call('help', 'ls')
             return -1
 
         structs = list_rt_structs(file_path)

@@ -18,7 +18,7 @@ pip install dcmrtstruct2nii
 dcmrtstruct2nii --help
 
 # list structures in DICOM RT Struct
-dcmrtstruct2nii list -r /path/to/rtstruct/file
+dcmrtstruct2nii ls -r /path/to/rtstruct/file
 
 # convert help output
 dcmrtstruct2nii convert --help

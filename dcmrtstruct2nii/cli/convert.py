@@ -94,7 +94,7 @@ class Convert(PatchedCommand):
             structures = [x.strip() for x in structures.split(',')]
 
         if not rtstruct_file or not dicom_file or not output_path:
-            logging.error('dcmrtstruct2nii convert needs the following parameters at minimum: --rtstruct <..> --dicom <..> --output <..>')
+            self.call('help', 'convert')
             return -1
 
         try:
