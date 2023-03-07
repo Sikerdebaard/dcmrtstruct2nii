@@ -44,7 +44,7 @@ dcmrtstruct2nii('/path/to/dicom/rtstruct/file.dcm', '/path/to/original/extracted
 
 # License and academic use
 
-The program is licensed [Apache license 2.0](https://github.com/Sikerdebaard/dcmrtstruct2nii/blob/master/LICENSE).
+The software is licensed [MIT License](https://github.com/Sikerdebaard/dcmrtstruct2nii/blob/master/LICENSE).
 
 For academic use, use a presistent copy from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4037864.svg)](https://doi.org/10.5281/zenodo.4037864). 
 
