@@ -1279,3 +1279,14 @@ testdata/stwstrategyhn1/HN1483/mask_Parotid-Left.nii.gz filter=lfs diff=lfs merg
 testdata/stwstrategyhn1/HN1869/mask_Cochlea-Right.nii.gz filter=lfs diff=lfs merge=lfs -text
 testdata/stwstrategyhn1/HN1987/mask_Oral-Cavity.nii.gz filter=lfs diff=lfs merge=lfs -text
 testdata/stwstrategyhn1/HN1118/mask_Parotid-Left.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/new_method/mask_No-hole.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/new_method/mask_OneHole.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/new_method/mask_TouchEdgeFail.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/new_method/mask_TwoHoles.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/old_method/mask_OneHole.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/old_method/mask_TwoHoles.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/rtss/rtss_1.2.826.0.1.3680043.8.274.1.1.225842493.89446.1674812092.977037.dcm.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/new_method/mask_Wave.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/old_method/mask_No-hole.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/old_method/mask_TouchEdgeFail.nii.gz filter=lfs diff=lfs merge=lfs -text
+testdata/pr37/old_method/mask_Wave.nii.gz filter=lfs diff=lfs merge=lfs -text

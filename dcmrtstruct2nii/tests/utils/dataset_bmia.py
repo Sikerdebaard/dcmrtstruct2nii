@@ -47,6 +47,14 @@ def list_subjects(project_name):
     return _subjects(project_name, xnat_url)
 
 
+def download_subject_by_name(subject_name, datafolder, project_name):
+    subjects = list_subjects(project_name)
+
+    for subject in subjects:
+        if subject.label == subject_name:
+            download_subject(subject, datafolder)
+
+
 def download_subject(subject, datafolder):
     for e in subject.experiments:
         experiment = subject.experiments[e]
