@@ -1,6 +1,7 @@
 import numpy as np
 from skimage import draw
 import SimpleITK as sitk
+from tqdm.auto import tqdm
 
 from dcmrtstruct2nii.exceptions import ContourOutOfBoundsException
 
@@ -22,8 +23,8 @@ class DcmPatientCoords2Mask():
         np_mask = sitk.GetArrayFromImage(mask)
         np_mask.fill(mask_background)
 
-        for contour in rtstruct_contours:
-            if contour['type'].upper() not in ['CLOSED_PLANAR', 'INTERPOLATED_PLANAR']:
+        for contour in tqdm(rtstruct_contours, unit='contours'):
+            if contour['type'].upper().replace('_','').strip() not in ['CLOSEDPLANAR', 'INTERPOLATEDPLANAR', 'CLOSEDPLANARXOR']:
                 if 'name' in contour:
                     logging.info(f'Skipping contour {contour["name"]}, unsupported type: {contour["type"]}')
                 else:
