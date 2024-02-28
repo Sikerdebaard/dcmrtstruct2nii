@@ -6,13 +6,28 @@ from dcmrtstruct2nii.exceptions import InvalidFileFormatException
 
 
 class RtStructInputAdapter(AbstractInputAdapter):
-    def ingest(self, input_file, skip_contours=False):  # noqa: C901
+    def _recursive_tag_lookup(self, dcm, tag):
+        retvals = []
+        for el in dcm:
+            if el.VR == 'SQ':
+                res = [self._recursive_tag_lookup(item, tag) for item in el.value]
+                for x in res:
+                    retvals = [*retvals, *x]
+            else:
+                if el.tag == tag:
+                    return [el.value]
+                elif str(el.name).lower() == str(tag).lower():
+                    return [el.value]
+                
+        return retvals
+
+    def ingest(self, input_file, maskname_pattern, skip_contours=False):  # noqa: C901
         '''
             Load RT Struct DICOM from input_file and output intermediate format
             :param input_file: Path to the dicom rt-struct file
+            :param maskname_pattern: A Sequence of dicom tags to be used as the masks name
             :return: multidimensional array with ROI(s)
         '''
-
         try:
             rt_struct_image = pydicom.read_file(input_file)
 
@@ -50,6 +65,24 @@ class RtStructInputAdapter(AbstractInputAdapter):
 
             if hasattr(contour_sequence, 'ROIDisplayColor') and len(contour_sequence.ROIDisplayColor) > 0:
                 contour_data['display_color'] = contour_sequence.ROIDisplayColor
+
+            maskname = []
+            for tag in maskname_pattern:
+                contourtags = self._recursive_tag_lookup(contour_sequence, tag)
+                if contourtags:
+                    maskname.append(str(contourtags[0]))
+                    continue
+
+                metatags = self._recursive_tag_lookup(metadata, tag)
+                if metatags:
+                    maskname.append(str(metatags[0]))
+                    continue
+
+                maskname.append(f'UNK')
+                
+                
+            if len(maskname) > 0:
+                contour_data['maskname'] = '-'.join(maskname)
 
             if not skip_contours and hasattr(contour_sequence, 'ContourSequence') and len(contour_sequence.ContourSequence) > 0:
                 contour_data['sequence'] = []

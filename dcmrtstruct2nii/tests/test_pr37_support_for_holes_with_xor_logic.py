@@ -30,7 +30,7 @@ def test_compare_iou(tmpdir):
     assert len(dicompath) == 1
     dicompath = dicompath[0]
 
-    dcmrtstruct2nii(rtstructfile, dicompath, outdir)
+    dcmrtstruct2nii(rtstructfile, dicompath, outdir, maskname_pattern=['ROIName'])
 
     groundtruthniis = {f.name: f for f in groundtruthdir.glob('new_method/*.nii.gz')}
     oldmethodniis = {f.name: f for f in groundtruthdir.glob('old_method/*.nii.gz')}

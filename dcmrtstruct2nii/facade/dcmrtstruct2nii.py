@@ -19,22 +19,28 @@ cprint('\nPlease cite:', attrs=["bold"])
 cprint(f'{cite}\n')
 
 
-def list_rt_structs(rtstruct_file):
+_default_maskname_pattern = ('ROINumber', 'ROIName')
+
+
+def list_rt_structs(rtstruct_file, maskname_pattern=None):
     """
     Lists the structures in an DICOM RT Struct file by name.
 
     :param rtstruct_file: Path to the rtstruct file
     :return: A list of names, if any structures are found
     """
+    if not maskname_pattern:
+        maskname_pattern = _default_maskname_pattern
+
     if not os.path.exists(rtstruct_file):
         raise PathDoesNotExistException(f'rtstruct path does not exist: {rtstruct_file}')
 
     rtreader = RtStructInputAdapter()
-    rtstructs = rtreader.ingest(rtstruct_file, True)
-    return [struct['name'] for struct in rtstructs]
+    rtstructs = rtreader.ingest(rtstruct_file, maskname_pattern, True)
+    return [struct['maskname'] for struct in rtstructs if 'maskname' in struct]
 
 
-def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True, series_id=None):  # noqa: C901 E501
+def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzip=True, mask_background_value=0, mask_foreground_value=255, convert_original_dicom=True, series_id=None, maskname_pattern=None):  # noqa: C901 E501
     """
     Converts A DICOM and DICOM RT Struct file to nii
 
@@ -52,6 +58,9 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
     :raise ValueError: Raised when mask_background_value or mask_foreground_value is invalid.
     """
     output_path = os.path.join(output_path, '')  # make sure trailing slash is there
+
+    if not maskname_pattern:
+        maskname_pattern = _default_maskname_pattern
 
     if not os.path.exists(rtstruct_file):
         raise PathDoesNotExistException(f'rtstruct path does not exist: {rtstruct_file}')
@@ -73,7 +82,7 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
     filename_converter = FilenameConverter()
     rtreader = RtStructInputAdapter()
 
-    rtstructs = rtreader.ingest(rtstruct_file)
+    rtstructs = rtreader.ingest(rtstruct_file, maskname_pattern=maskname_pattern)
     dicom_image = DcmInputAdapter().ingest(dicom_file, series_id=series_id)
 
     dcm_patient_coords_to_mask = DcmPatientCoords2Mask()
@@ -84,16 +93,17 @@ def dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures=None, gzi
                 logging.info('Skipping mask {} no shape/polygon found'.format(rtstruct['name']))
                 continue
 
-            logging.info('Working on mask {}'.format(rtstruct['name']))
+            maskname = rtstruct['maskname']
+            logging.info(f'Working on mask {maskname}')
             try:
                 mask = dcm_patient_coords_to_mask.convert(rtstruct['sequence'], dicom_image, mask_background_value, mask_foreground_value)
             except ContourOutOfBoundsException:
-                logging.warning(f'Structure {rtstruct["name"]} is out of bounds, ignoring contour!')
+                logging.warning(f'Structure {maskname} is out of bounds, ignoring contour!')
                 continue
 
             mask.CopyInformation(dicom_image)
 
-            mask_filename = filename_converter.convert(f'mask_{rtstruct["name"]}')
+            mask_filename = filename_converter.convert(f'mask_{maskname}')
             nii_output_adapter.write(mask, f'{output_path}{mask_filename}', gzip)
 
     if convert_original_dicom:

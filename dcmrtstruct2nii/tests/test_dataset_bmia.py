@@ -48,7 +48,7 @@ def gen_compare_list(tmpdir, keep_files=False, n_samples=10):
         subjoutdir = Path(dcmrtstruct2niidir / subject.label)
         subjoutdir.mkdir(exist_ok=True)
 
-        dcmrtstruct2nii(rtstruct, dicom, subjoutdir)
+        dcmrtstruct2nii(rtstruct, dicom, subjoutdir, maskname_pattern=['ROIName'])
 
         niicounter = 0
         for nii in subjoutdir.glob('*.nii.gz'):

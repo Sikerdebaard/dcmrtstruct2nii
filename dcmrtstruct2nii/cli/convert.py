@@ -1,6 +1,6 @@
 from dcmrtstruct2nii.cli.wrapper.patchedcommand import PatchedCommand
 from dcmrtstruct2nii.exceptions import InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException
-from dcmrtstruct2nii.facade.dcmrtstruct2nii import dcmrtstruct2nii
+from dcmrtstruct2nii.facade.dcmrtstruct2nii import dcmrtstruct2nii, _default_maskname_pattern
 
 from cleo.helpers import option
 
@@ -72,6 +72,13 @@ class Convert(PatchedCommand):
             default=True,
             flag=False,
         ),
+        option(
+            "maskname_pattern",
+            "m",
+            description="The naming pattern to use for the RTStruct mask names",
+            flag=False,
+            default=','.join(_default_maskname_pattern),
+        ),
     ]
 
     def handle(self):
@@ -97,7 +104,11 @@ class Convert(PatchedCommand):
             self.call('help', 'convert')
             return -1
 
+        maskname_pattern = self.option('maskname_pattern')
+        if maskname_pattern:
+            maskname_pattern = [x.strip() for x in maskname_pattern.split(',')]
+
         try:
-            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom, series_id)
+            dcmrtstruct2nii(rtstruct_file, dicom_file, output_path, structures, gzip, mask_background, mask_foreground, convert_original_dicom, series_id, maskname_pattern)
         except (InvalidFileFormatException, PathDoesNotExistException, UnsupportedTypeException, ValueError,) as e:
             logging.error(str(e))
